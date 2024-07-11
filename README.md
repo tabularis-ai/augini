@@ -254,3 +254,10 @@ print(result_df)
 # You can also save the results to a CSV file
 result_df.to_csv('labeled_sentences.csv', index=False)
 ```
+
+
+### Contact 
+
+If you are looking for an enterprise version of the tool or a need local version please contact us:
+
+`info@tabularis.ai` 
