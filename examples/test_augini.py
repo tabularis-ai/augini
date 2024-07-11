@@ -1,45 +1,45 @@
+import unittest
 import pandas as pd
 from augini import Augini
 from augini.exceptions import APIError, DataProcessingError
 
-def test_augini():
-    # Initialize Augini
-    api_key = "your_api_key"
-    augini = Augini(api_key=api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct', debug=False)
+class TestAugini(unittest.TestCase):
+    def setUp(self):
+        self.api_key = "your_api_key"  # Replace with a valid API key for testing
+        self.augini = Augini(api_key=self.api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct', debug=False)
+        self.df = pd.DataFrame({
+            'Name': ['John Doe', 'Jane Smith', 'Bob Johnson'],
+            'Age': [30, 25, 45],
+            'City': ['New York', 'Los Angeles', 'Chicago']
+        })
 
-    # Create a sample DataFrame
-    data = {
-        'Name': ['John Doe', 'Jane Smith', 'Bob Johnson'],
-        'Age': [30, 25, 45],
-        'City': ['New York', 'Los Angeles', 'Chicago']
-    }
-    df = pd.DataFrame(data)
+    def test_augment_single(self):
+        try:
+            result_df = self.augini.augment_columns(self.df, ['Occupation'])
+            self.assertIn('Occupation', result_df.columns)
+        except (APIError, DataProcessingError) as e:
+            self.fail(f"augment_single raised {type(e).__name__} unexpectedly: {str(e)}")
 
-    # Test 1: Add a single feature
-    try:
-        result_df = augini.augment_single(df, 'Occupation')
-    except (APIError, DataProcessingError) as e:
-        print(f"Test 1 failed: {str(e)}")
+    def test_augment_multiple(self):
+        try:
+            result_df = self.augini.augment_columns(self.df, ['Hobby', 'FavoriteColor'])
+            self.assertIn('Hobby', result_df.columns)
+            self.assertIn('FavoriteColor', result_df.columns)
+        except (APIError, DataProcessingError) as e:
+            self.fail(f"augment_columns raised {type(e).__name__} unexpectedly: {str(e)}")
 
-    # Test 2: Add multiple features
-    try:
-        result_df = augini.augment_columns(df, 'Hobby', 'FavoriteColor')
-    except (APIError, DataProcessingError) as e:
-        print(f"Test 2 failed: {str(e)}")
-
-    # Test 3: Add a feature with a custom prompt
-    try:
+    def test_custom_prompt(self):
         custom_prompt = "Based on the person's name and age, suggest a quirky pet for them. Respond with a JSON object with the key 'QuirkyPet'."
-        result_df = augini.augment_single(df, 'QuirkyPet', custom_prompt=custom_prompt)
-    except (APIError, DataProcessingError) as e:
-        print(f"Test 3 failed: {str(e)}")
+        try:
+            result_df = self.augini.augment_columns(self.df, ['QuirkyPet'], custom_prompt=custom_prompt)
+            self.assertIn('QuirkyPet', result_df.columns)
+        except (APIError, DataProcessingError) as e:
+            self.fail(f"augment_columns with custom prompt raised {type(e).__name__} unexpectedly: {str(e)}")
 
-    # Test 4: Test error handling with an invalid API key
-    try:
+    def test_invalid_api_key(self):
         invalid_augini = Augini(api_key="invalid_key", use_openrouter=True)
-        invalid_augini.augment_single(df, 'InvalidFeature')
-    except APIError:
-        print("Test 4 passed: APIError caught as expected")
+        with self.assertRaises(APIError):
+            invalid_augini.augment_columns(self.df, ['InvalidFeature'])
 
-if __name__ == "__main__":
-    test_augini()
+if __name__ == '__main__':
+    unittest.main()

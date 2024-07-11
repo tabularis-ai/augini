@@ -1,4 +1,4 @@
-openai
+openai>=1.35.13
 pandas
 tqdm
 numpy<2.0.0

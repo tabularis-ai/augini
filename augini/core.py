@@ -9,6 +9,7 @@ from typing import List, Dict, Any, Optional, Tuple
 from pydantic import BaseModel, ValidationError, root_validator
 import re
 from .utils import extract_json, generate_default_prompt
+from .exceptions import APIError, DataProcessingError
 
 nest_asyncio.apply()
 
@@ -43,10 +44,14 @@ class Augini:
         base_url: str = "https://openrouter.ai/api/v1",
         debug: bool = False
     ):
-        self.client = AsyncOpenAI(
-            base_url=base_url if use_openrouter else None,
-            api_key=api_key
-        )
+        if use_openrouter:
+            self.client = AsyncOpenAI(
+                base_url=base_url,
+                api_key=api_key,
+            )
+        else:
+            self.client = AsyncOpenAI(api_key=api_key)
+
         self.model_name = model
         self.temperature = temperature
         self.max_tokens = max_tokens
@@ -157,27 +162,19 @@ class Augini:
         else:
             return asyncio.run(self._generate_features(result_df, column_names, prompt_template))
 
-    def augment_columns(self, df: pd.DataFrame, columns: List[str], custom_prompt: Optional[str] = None, use_sync: bool = False) -> pd.DataFrame:
+    def augment_single(self, df: pd.DataFrame, column_name: str, custom_prompt: Optional[str] = None, use_sync: bool = False) -> pd.DataFrame:
         result_df = df.copy()
         available_columns = list(result_df.columns)
-        column_names = columns
 
         if custom_prompt:
             try:
-                CustomPromptModel(column_names=column_names, prompt=custom_prompt, available_columns=available_columns)
+                CustomPromptModel(column_names=[column_name], prompt=custom_prompt, available_columns=available_columns)
             except ValidationError as e:
                 raise ValueError(f"Custom prompt validation error: {e}")
-    
 
-        prompt_template = custom_prompt or generate_default_prompt(column_names, available_columns)
+        prompt_template = custom_prompt or generate_default_prompt([column_name], available_columns)
         
         if use_sync:
-            return self._generate_features_sync(result_df, column_names, prompt_template)
+            return self._generate_features_sync(result_df, [column_name], prompt_template)
         else:
-            return asyncio.run(self._generate_features(result_df, column_names, prompt_template))
-
-class APIError(Exception):
-    pass
-
-class DataProcessingError(Exception):
-    pass
+            return asyncio.run(self._generate_features(result_df, [column_name], prompt_template))

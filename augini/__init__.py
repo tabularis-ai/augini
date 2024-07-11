@@ -1,4 +1,4 @@
 from .core import Augini
+from .exceptions import APIError, DataProcessingError
 
-__version__ = "0.1.0"
-__all__ = ["Augini"]
+__all__ = ['Augini', 'APIError', 'DataProcessingError']

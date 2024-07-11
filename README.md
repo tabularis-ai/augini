@@ -1,6 +1,39 @@
-# Augini
+# Augini: AI-Powered Data Augmentation, Generation, Labeling, and Anonymization
 
-Augini is a Python framework for generating synthetic tabular data using AI. It leverages the power of language models to create realistic, fictional data based on existing datasets.
+Augini is a versatile Python framework that leverages AI for comprehensive data manipulation. It uses large language models to augment, generate, and anonymize tabular data, creating realistic and privacy-preserving datasets.
+
+
+## Data Augmentation:
+
+- Enhance existing datasets with AI-generated features
+- Add contextual information based on current data
+- Infuse domain knowledge from LLMs
+
+
+## Synthetic Data Generation:
+
+- Create entirely new, realistic datasets
+- Maintain statistical properties of original data
+- Generate diverse, coherent synthetic profiles
+
+
+## Data Anonymization:
+
+- Implement k-anonymity and l-diversity
+- Generate synthetic identifiers
+- Balance privacy and data utility
+
+
+
+## Use Cases
+
+- Augment ML training datasets
+- Generate privacy-safe data for sharing
+- Automatic labeling using state-of-the-art AI models 
+- Create synthetic data for software testing
+- Develop realistic scenarios for business planning
+- Produce diverse datasets for research and education
+
 
 ## Installation
 
@@ -17,8 +50,13 @@ Here's a simple example of how to use Augini:
 from augini import Augini
 import pandas as pd
 
-# Initialize Augini
-augini = Augini(api_key="your_api_key", use_openrouter=True)
+api_key = "OpenAI or OpenRouter"
+
+# OpenAI
+augini = Augini(api_key=api_key, debug=False, use_openrouter=False, model='gpt-4-turbo')
+
+# OpenRouter 
+augini = Augini(api_key=api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct')
 
 # Create a sample DataFrame
 data = {
@@ -34,16 +72,7 @@ result_df = augini.augment_columns(df, 'NAME', 'OCCUPATION', 'FAVORITE_DRINK')
 print(result_df)
 ```
 
-## Features
 
-- Generate synthetic data based on existing datasets
-- Customizable prompts for data generation
-- Support for both OpenAI API and OpenRouter
-- Asynchronous processing for improved performance
-
-## Extending and Enriching Data
-
-Augini can be used to extend, augment, and enrich your datasets by adding synthetic features and bringing knowledge from language models to your data.
 
 ### Adding Multiple Features
 
@@ -61,16 +90,6 @@ Custom prompts allow you to generate specific features based on your needs:
 ```python
 custom_prompt = "Based on the person's name and age, suggest a quirky pet for them. Respond with a JSON object with the key 'QuirkyPet'."
 result_df = augini.augment_single(df, 'QuirkyPet', custom_prompt=custom_prompt)
-print(result_df)
-```
-
-### Anonymizing Data
-
-You can anonymize sensitive information in your dataset by generating synthetic data:
-
-```python
-anonymize_prompt = "Create an anonymous profile for the person based on their age and city. Respond with a JSON object with keys 'AnonymousName' and 'AnonymousEmail'."
-result_df = augini.augment_single(df, 'AnonymousProfile', custom_prompt=anonymize_prompt)
 print(result_df)
 ```
 
@@ -94,9 +113,10 @@ result_df = augini.augment_single(df, 'Recommendations', custom_prompt=recommend
 print(result_df)
 ```
 
-## Full Example
+### Anonymizing Data
 
-Here's a full example demonstrating multiple features and custom prompts:
+You can anonymize sensitive information in your dataset by generating synthetic data:
+
 
 ```python
 from augini import Augini
@@ -121,12 +141,116 @@ custom_prompt = "Based on the person's name and age, suggest a quirky pet for th
 result_df = augini.augment_single(result_df, 'QuirkyPet', custom_prompt=custom_prompt)
 
 # Anonymize data
-anonymize_prompt = "Create an anonymous profile for the person based on their age and city. Respond with a JSON object with keys 'AnonymousName' and 'AnonymousEmail'."
-result_df = augini.augment_single(result_df, 'AnonymousProfile', custom_prompt=anonymize_prompt)
+# Initialize Augini with your API key
 
+from augini import Augini
+import pandas as pd
+
+api_key = "OpenAI or OpenRouter"
+
+# OpenAI
+augini = Augini(api_key=api_key, debug=False, use_openrouter=False, model='gpt-4-turbo')
+
+# OpenRouter 
+augini = Augini(api_key=api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct')
+
+# Create a sample DataFrame with sensitive information
+data = {
+    'Name': ['Alice Johnson', 'Bob Smith', 'Charlie Davis'],
+    'Age': [28, 34, 45],
+    'City': ['New York', 'Los Angeles', 'Chicago'],
+    'Email': ['alice.johnson@example.com', 'bob.smith@example.com', 'charlie.davis@example.com'],
+    'Phone': ['123-456-7890', '987-654-3210', '555-555-5555']
+}
+df = pd.DataFrame(data)
+
+# Define a general anonymization prompt
+anonymize_prompt = (
+    "Given the information from the dataset, create an anonymized version that protects individual privacy while maintaining data utility. "
+    "Follow these guidelines:\n\n"
+    "1. K-Anonymity: Ensure that each combination of quasi-identifiers (e.g., age, city) appears at least k times in the dataset. "
+    "Use generalization or suppression techniques as needed.\n"
+    "2. L-Diversity: For sensitive attributes, ensure there are at least l well-represented values within each equivalence class.\n"
+    "3. Direct Identifiers: Replace the following with synthetic data:\n"
+    "   - Names: Generate culturally appropriate fictional names\n"
+    "   - Email addresses: Create plausible fictional email addresses\n"
+    "   - Phone numbers: Generate realistic but non-functional phone numbers\n"
+    "4. Quasi-Identifiers: Apply generalization or suppression as needed:\n"
+    "   - Age: Consider using age ranges instead of exact ages\n"
+    "   - City: Use broader geographic regions if necessary\n"
+    "5. Sensitive Attributes: Maintain the statistical distribution of sensitive data while ensuring diversity.\n"
+    "6. Data Consistency: Ensure that the anonymized data remains internally consistent and plausible.\n"
+    "7. Non-Sensitive Data: Keep unchanged unless required for k-anonymity or l-diversity.\n\n"
+    "Respond with a JSON object containing the anonymized values for all fields. "
+    "Ensure the anonymized dataset maintains utility for analysis while protecting individual privacy."
+)
+
+# Use the augment_columns method to anonymize the data
+result_df = augini.augment_columns(df, ['Name_A', 'Email_A', 'Age_A', 'City_A'], custom_prompt=anonymize_prompt)
+
+# Display the resulting DataFrame
 print(result_df)
 ```
 
-## Contributing
 
-We welcome contributions to enhance Augini! Feel free to open issues and submit pull requests on our GitHub repository.
+### Automated Data Labeling
+
+Augini can be used to automatically generate labels for data, enhancing datasets with semantic information. In this example, we use Augini to analyze sentences and generate semantic labels, sentiment analysis, and topic identification:
+
+
+```python
+from augini import Augini
+import pandas as pd
+
+# Initialize Augini
+api_key = "your_api_key_here"
+augini = Augini(api_key=api_key, use_openrouter=True, model='gpt-3.5-turbo')
+
+# Create a sample DataFrame with sentences
+data = {
+    'sentence': [
+        "The cat sat on the mat.",
+        "I love to eat pizza on Fridays.",
+        "The stock market crashed yesterday.",
+        "She sang beautifully at the concert.",
+        "The new policy will be implemented next month."
+    ]
+}
+df = pd.DataFrame(data)
+
+# Define custom prompts for labeling
+semantic_label_prompt = """
+Analyze the given sentence and provide a semantic label. Choose from the following options:
+Statement
+Opinion
+Fact
+Action
+Event
+Respond with a JSON object containing the key 'semantic_label' and its value.
+"""
+
+sentiment_prompt = """
+Determine the sentiment of the given sentence. Choose from the following options:
+Positive
+Negative
+Neutral
+Respond with a JSON object containing the key 'sentiment' and its value.
+"""
+
+topic_prompt = """
+Identify the main topic of the given sentence. Provide a short (1-3 words) topic label.
+Respond with a JSON object containing the key 'topic' and its value.
+"""
+
+# Generate labels using Augini
+result_df = augini.augment_columns(df, 
+    ['semantic_label', 'sentiment', 'topic'],
+    custom_prompt=f"Sentence: {{sentence}}\n\n{semantic_label_prompt}\n\n{sentiment_prompt}\n\n{topic_prompt}"
+)
+
+# Display the results
+print(result_df)
+
+# You can also save the results to a CSV file
+result_df.to_csv('labeled_sentences.csv', index=False)
+```
