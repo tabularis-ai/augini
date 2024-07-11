@@ -1,0 +1,6 @@
+openai
+pandas
+tqdm
+numpy<2.0.0
+nest_asyncio
+pydantic

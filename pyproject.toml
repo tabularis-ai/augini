@@ -1,0 +1,41 @@
+
+[project]
+name = "augini"
+version = "0.1.0"
+authors = [
+  { name = "Vadim", email = "vadim@tabularis.ai" },
+]
+description = "A framework for generating synthetic tabular data using AI"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+keywords = ["augini", "synthetic data", "tabular data", "AI", "data generation", "OpenAI", "OpenRouter"]
+dependencies = [
+    "openai",
+    "pandas",
+    "numpy<2.0.0",
+    "tqdm",
+    "nest_asyncio",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/tabularis-ai/augini"
+"Bug Tracker" = "https://github.com/tabularis-ai/augini/issues"
+
+[tool.setuptools]
+packages = ["augini"]
+
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
