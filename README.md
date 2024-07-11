@@ -228,6 +228,17 @@ print(result_df)
 result_df.to_csv('labeled_sentences.csv', index=False)
 ```
 
+Output:
+
+```
+|    | sentence                                       | semantic_label   | sentiment   | topic   |
+|---:|:-----------------------------------------------|:-----------------|:------------|:--------|
+|  0 | The cat sat on the mat.                        | Statement        | Neutral     | Animal  |
+|  1 | I love to eat pizza on Fridays.                | Opinion          | Positive    | Food    |
+|  2 | The stock market crashed yesterday.            | Event            | Negative    | Finance |
+|  3 | She sang beautifully at the concert.           | Statement        | Positive    | Music   |
+|  4 | The new policy will be implemented next month. | Statement        | Neutral     | Policy  |
+```
 
 ### Contact 
 
