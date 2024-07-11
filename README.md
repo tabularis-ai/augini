@@ -53,7 +53,7 @@ import pandas as pd
 api_key = "OpenAI or OpenRouter"
 
 # OpenAI
-augini = Augini(api_key=api_key, debug=False, use_openrouter=False, model='gpt-4-turbo')
+augini = Augini(api_key=api_key,  model='gpt-4-turbo', use_openrouter=False)
 
 # OpenRouter 
 augini = Augini(api_key=api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct')
@@ -67,21 +67,11 @@ data = {
 df = pd.DataFrame(data)
 
 # Add synthetic features
-result_df = augini.augment_columns(df, 'NAME', 'OCCUPATION', 'FAVORITE_DRINK')
+result_df = augini.augment_columns(df, ['NAME', 'OCCUPATION', 'FAVORITE_DRINK'])
 
 print(result_df)
 ```
 
-
-
-### Adding Multiple Features
-
-You can add multiple features to your DataFrame:
-
-```python
-result_df = augini.augment_columns(df, 'Hobby', 'FavoriteColor', 'FavoriteMovie')
-print(result_df)
-```
 
 ### Custom Prompts for Feature Generation
 
@@ -134,7 +124,7 @@ data = {
 df = pd.DataFrame(data)
 
 # Add multiple synthetic features
-result_df = augini.augment_columns(df, 'Occupation', 'Hobby', 'FavoriteColor')
+result_df = augini.augment_columns(df, ['Occupation', 'Hobby', 'FavoriteColor'])
 
 # Add a custom feature
 custom_prompt = "Based on the person's name and age, suggest a quirky pet for them. Respond with a JSON object with the key 'QuirkyPet'."
