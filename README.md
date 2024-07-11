@@ -1,4 +1,4 @@
-# Augini: AI-Powered Data Augmentation, Generation, Labeling, and Anonymization
+# Augini: AI-Powered Data Augmentation, Generation, Labeling, and Anonymization 🔒
 
 Augini is a versatile Python framework that leverages AI for comprehensive data manipulation. It uses large language models to augment, generate, and anonymize tabular data, creating realistic and privacy-preserving datasets.
 
@@ -10,7 +10,7 @@ Augini is a versatile Python framework that leverages AI for comprehensive data 
 - Infuse domain knowledge from LLMs
 
 
-## Synthetic Data Generation:
+## Synthetic Data Generation and Extantion:
 
 - Create entirely new, realistic datasets
 - Maintain statistical properties of original data
