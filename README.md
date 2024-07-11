@@ -112,30 +112,6 @@ You can anonymize sensitive information in your dataset by generating synthetic 
 from augini import Augini
 import pandas as pd
 
-# Initialize Augini
-augini = Augini(api_key="your_api_key", use_openrouter=True)
-
-# Create a sample DataFrame
-data = {
-    'Name': ['Alice Johnson', 'Bob Smith', 'Charlie Davis'],
-    'Age': [28, 34, 45],
-    'City': ['New York', 'Los Angeles', 'Chicago']
-}
-df = pd.DataFrame(data)
-
-# Add multiple synthetic features
-result_df = augini.augment_columns(df, ['Occupation', 'Hobby', 'FavoriteColor'])
-
-# Add a custom feature
-custom_prompt = "Based on the person's name and age, suggest a quirky pet for them. Respond with a JSON object with the key 'QuirkyPet'."
-result_df = augini.augment_single(result_df, 'QuirkyPet', custom_prompt=custom_prompt)
-
-# Anonymize data
-# Initialize Augini with your API key
-
-from augini import Augini
-import pandas as pd
-
 api_key = "OpenAI or OpenRouter"
 
 # OpenAI
@@ -180,6 +156,13 @@ result_df = augini.augment_columns(df, ['Name_A', 'Email_A', 'Age_A', 'City_A'],
 
 # Display the resulting DataFrame
 print(result_df)
+```
+Output: 
+```
+            Name  Age         City                      Email         Phone            Name_A                       Email_A  Age_A      City_A
+0  Alice Johnson   28     New York  alice.johnson@example.com  123-456-7890  Sophia Rodriguez  sophia.rodriguez@example.com  25-30  East Coast
+1      Bob Smith   34  Los Angeles      bob.smith@example.com  987-654-3210     Sarah Johnson     sarah.johnson@example.org  30-39  West Coast
+2  Charlie Davis   45      Chicago  charlie.davis@example.com  555-555-5555     Emily Johnson     emily.johnson@example.com  40-50     Midwest
 ```
 
 
