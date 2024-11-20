@@ -1,3 +1,6 @@
+[![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) [![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
+
+
 ## *Build and Enhance Custom Datasets for your Use Case*
 
 <p align="center">
