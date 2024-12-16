@@ -10,6 +10,7 @@ from pydantic import BaseModel, ValidationError, model_validator
 import re
 from .utils import extract_json, generate_default_prompt
 from .exceptions import APIError, DataProcessingError
+from IPython.display import display, Markdown
 
 nest_asyncio.apply()
 
@@ -21,7 +22,7 @@ class CustomPromptModel(BaseModel):
     prompt: str
     available_columns: List[str]
 
-    @model_validator(pre=True)
+    @model_validator(mode="before")
     def check_prompt(cls, values):
         prompt = values.get('prompt')
         available_columns = values.get('available_columns')
@@ -57,6 +58,7 @@ class Augini:
         self.max_tokens = max_tokens
         self.semaphore = asyncio.Semaphore(concurrency_limit)
         self.debug = debug
+        self.conversation_history = []
 
         if debug:
             logger.setLevel(logging.INFO)
@@ -178,3 +180,71 @@ class Augini:
             return self._generate_features_sync(result_df, [column_name], prompt_template)
         else:
             return asyncio.run(self._generate_features(result_df, [column_name], prompt_template))
+        
+    def chat(self, query: str, df: pd.DataFrame) -> str:
+        """
+        Chat method to answer questions about a DataFrame using AI.
+
+        Args:
+            query (str): Natural language question about the DataFrame
+            df (pd.DataFrame): The DataFrame to analyze
+
+        Returns:
+            str: AI-generated response to the query
+        """
+
+        # Prepare context about the DataFrame
+        df_info = {
+            "columns": list(df.columns),
+            "shape": df.shape,
+            "column_types": df.dtypes.to_dict(),
+            "summary_stats": df.describe().to_dict()
+        }
+
+        system_content = (
+            "You are a helpful data analysis assistant. You will be asked questions about a DataFrame. "
+            "Provide clear, concise, and accurate answers based on the DataFrame information provided. "
+            "If you cannot answer the question explain why in a friendly manner."
+        )
+
+        user_content = (
+            f"DataFrame Context:\n"
+            f"Columns: {df_info['columns']}\n"
+            f"Shape: {df_info['shape']}\n"
+            f"Column Types: {df_info['column_types']}\n"
+            f"Summary Statistics: {df_info['summary_stats']}\n\n"
+            f"Question: {query}"
+        )
+
+        try:
+            response = asyncio.run(self._get_response(
+                prompt=user_content, 
+                row_data=df_info, 
+                feature_names=['answer']
+            ))
+
+            parsed_response = extract_json(response)
+            answer = parsed_response.get('answer', 'I could not generate a response.')
+
+            conversation_entry = {
+                "query": query,
+                "response": answer,
+                "df_context": df_info
+            }
+            self.conversation_history.append(conversation_entry)
+
+            return answer
+
+        except Exception as e:
+            error_response = f"An error occurred while processing your query: {str(e)}"
+            
+            # Store the conversation with the error response
+            conversation_entry = {
+                "query": query,
+                "response": error_response,
+                "df_context": df_info
+            }
+            self.conversation_history.append(conversation_entry)
+
+            return error_response
+            
