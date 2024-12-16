@@ -6,7 +6,7 @@ from tqdm.auto import tqdm
 import nest_asyncio
 import logging
 from typing import List, Dict, Any, Optional, Tuple
-from pydantic import BaseModel, ValidationError, root_validator
+from pydantic import BaseModel, ValidationError, model_validator
 import re
 from .utils import extract_json, generate_default_prompt
 from .exceptions import APIError, DataProcessingError
@@ -21,7 +21,7 @@ class CustomPromptModel(BaseModel):
     prompt: str
     available_columns: List[str]
 
-    @root_validator(pre=True)
+    @model_validator(pre=True)
     def check_prompt(cls, values):
         prompt = values.get('prompt')
         available_columns = values.get('available_columns')
