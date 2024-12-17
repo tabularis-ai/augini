@@ -65,17 +65,21 @@ class Augini:
             logging.getLogger("openai").setLevel(logging.INFO)
             logging.getLogger("httpx").setLevel(logging.INFO)
 
-    async def _get_response(self, prompt: str, row_data: Dict[str, Any], feature_names: List[str]) -> str:
+    async def _get_response(self, prompt: str, row_data: Dict[str, Any], feature_names: List[str], system_content: Optional[str] = None) -> str:
         async with self.semaphore:
             try:
                 if self.debug:
                     logger.debug(f"Prompt: {prompt}")
                 
+                # Use a default system content if not provided
+                if system_content is None:
+                    system_content = (
+                        "You are a helpful and very creative assistant that generates hyperrealistic (but fictional) synthetic tabular data based on limited information. "
+                        "Ensure the response is a valid JSON object as it is very important."
+                    )
+                
                 json_template = "{" + ", ".join(f'"{name}": "FILL"' for name in feature_names) + "}"
-                system_content = (
-                    "You are a helpful and very creative assistant that generates hyperrealistic (but fictional) synthetic tabular data based on limited information. "
-                    "Ensure the response is a valid JSON object as it is very important."
-                )
+                
                 user_content = (
                     f"{prompt}\n\n"
                     f"Here is the row data: {row_data}\n\n"
@@ -83,9 +87,8 @@ class Augini:
                 )
 
                 if self.debug:
-                    print(f"System content: {user_content}")
+                    print(f"System content: {system_content}")
                     logger.debug(f"User content: {user_content}")
-
 
                 response = await self.client.chat.completions.create(
                     model=self.model_name,
@@ -105,7 +108,7 @@ class Augini:
             except Exception as e:
                 logger.error(f"Error: {e}")
                 raise APIError(f"API request failed: {str(e)}")
-
+        
     async def _generate_features(self, df: pd.DataFrame, feature_names: List[str], prompt_template: str) -> pd.DataFrame:
         async def process_row(index: int, row: pd.Series) -> Tuple[int, Dict[str, Any]]:
             try:
@@ -202,10 +205,16 @@ class Augini:
         }
 
         system_content = (
-            "You are a helpful data analysis assistant. You will be asked questions about a DataFrame. "
-            "Provide clear, concise, and accurate answers based on the DataFrame information provided. "
-            "If you cannot answer the question explain why in a friendly manner."
-        )
+        "You are a precise data analysis assistant. Follow these CRITICAL instructions EXACTLY:\n"
+        "1. ALWAYS respond in a VALID JSON format with ONLY an 'answer' key.\n"
+        "2. The 'answer' value MUST be a STRING containing your full, complete response.\n"
+        "3. DO NOT use any escape characters, newlines, or special formatting in the JSON.\n"
+        "4. If you cannot answer the question, return a clear explanation as the answer value.\n"
+        "5. Be concise but comprehensive in your analysis.\n"
+        "6. Ensure the JSON can be parsed without any errors.\n\n"
+        "EXAMPLE VALID RESPONSE:\n"
+        '{"answer": "The mean of the Age column is 35.6 years based on the provided DataFrame."}'
+    )
 
         user_content = (
             f"DataFrame Context:\n"
@@ -221,6 +230,7 @@ class Augini:
                 prompt=user_content, 
                 row_data=df_info, 
                 feature_names=['answer']
+                ,system_content=system_content
             ))
 
             parsed_response = extract_json(response)
