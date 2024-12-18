@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 from openai import AsyncOpenAI
 import pandas as pd
 import numpy as np
@@ -11,6 +12,7 @@ import re
 from .utils import extract_json, generate_default_prompt
 from .exceptions import APIError, DataProcessingError
 from IPython.display import display, Markdown
+from sentence_transformers import SentenceTransformer
 
 nest_asyncio.apply()
 
@@ -59,6 +61,19 @@ class Augini:
         self.semaphore = asyncio.Semaphore(concurrency_limit)
         self.debug = debug
         self.conversation_history = []
+         # Embedding-based context tracking
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+        # Full conversation history
+        self.full_conversation_history: List[Dict[str, Any]] = []
+        
+        # Contextual summaries with embeddings
+        self.context_summaries: List[Dict[str, Any]] = []
+        
+        # Similarity and context management parameters
+        self.context_similarity_threshold = 0.7
+        self.max_context_summaries = 5
+        self.context_window_tokens = 1000
 
         if debug:
             logger.setLevel(logging.INFO)
@@ -148,6 +163,68 @@ class Augini:
         for feature in feature_names:
             df[feature] = [result.get(feature, np.nan) for result in results]
         return df
+    
+    def _generate_context_summary(self, query: str, response: str) -> Dict[str, Any]:
+        """
+        Generate a contextual summary with embedding
+        """
+        # Combine query and response for comprehensive context
+        context_text = f"{query} | {response}"
+        
+        # Generate embedding
+        context_embedding = self.embedding_model.encode(context_text)
+        
+        summary = {
+            "timestamp": datetime.now(),
+            "text": context_text,
+            "embedding": context_embedding.tolist(),
+            "tokens": len(context_text.split())  # Simple token estimation
+        }
+        
+        return summary
+    
+    def _calculate_context_relevance(self, new_query: str) -> List[float]:
+        """
+        Calculate relevance scores of new query to existing context summaries
+        
+        Returns:
+        - List of similarity scores for each existing context summary
+        """
+        # Encode new query
+        new_query_embedding = self.embedding_model.encode(new_query)
+        
+        # Calculate cosine similarities
+        similarities = []
+        for summary in self.context_summaries:
+            prev_embedding = np.array(summary['embedding'])
+            
+            # Cosine similarity calculation
+            similarity = np.dot(new_query_embedding, prev_embedding) / (
+                np.linalg.norm(new_query_embedding) * np.linalg.norm(prev_embedding)
+            )
+            similarities.append(similarity)
+        
+        return similarities
+
+    def _prune_context_summaries(self):
+        """
+        Manage context summaries:
+        - Limit number of summaries
+        - Remove old or less relevant summaries
+        """
+        # Sort summaries by timestamp (oldest first)
+        self.context_summaries.sort(key=lambda x: x['timestamp'])
+        
+        # Remove old summaries if we exceed max limit
+        while len(self.context_summaries) > self.max_context_summaries:
+            self.context_summaries.pop(0)
+        
+        # Optional: Remove summaries that are very old or low relevance
+        current_time = datetime.now()
+        self.context_summaries = [
+            summary for summary in self.context_summaries
+            if (current_time - summary['timestamp']).days < 7  # Keep summaries from last 7 days
+        ]
 
     def augment_columns(self, df: pd.DataFrame, columns: List[str], custom_prompt: Optional[str] = None, use_sync: bool = False) -> pd.DataFrame:
         result_df = df.copy()
@@ -196,7 +273,21 @@ class Augini:
             str: AI-generated response to the query
         """
 
-        # Prepare context about the DataFrame
+        similarities = self._calculate_context_relevance(query)
+        
+        context_text = ""
+        if similarities and max(similarities) > self.context_similarity_threshold:
+            relevant_indices = [
+                i for i, sim in enumerate(similarities) 
+                if sim > self.context_similarity_threshold
+            ]
+            
+            # Combine relevant context summaries
+            context_text = " | ".join([
+                self.context_summaries[i]['text'] 
+                for i in relevant_indices
+            ])
+
         df_info = {
             "columns": list(df.columns),
             "shape": df.shape,
@@ -205,16 +296,18 @@ class Augini:
         }
 
         system_content = (
-        "You are a precise data analysis assistant. Follow these CRITICAL instructions EXACTLY:\n"
-        "1. ALWAYS respond in a VALID JSON format with ONLY an 'answer' key.\n"
-        "2. The 'answer' value MUST be a STRING containing your full, complete response.\n"
-        "3. DO NOT use any escape characters, newlines, or special formatting in the JSON.\n"
-        "4. If you cannot answer the question, return a clear explanation as the answer value.\n"
-        "5. Be concise but comprehensive in your analysis.\n"
-        "6. Ensure the JSON can be parsed without any errors.\n\n"
-        "EXAMPLE VALID RESPONSE:\n"
-        '{"answer": "The mean of the Age column is 35.6 years based on the provided DataFrame."}'
-    )
+            "You are a precise data analysis assistant. Follow these CRITICAL instructions EXACTLY:\n"
+            "1. ALWAYS respond in a VALID JSON format with ONLY an 'answer' key.\n"
+            "2. The 'answer' value MUST be a STRING containing your full, complete response.\n"
+            "3. DO NOT use any escape characters, newlines, or special formatting in the JSON.\n"
+            "4. If you cannot answer the question, return a clear explanation as the answer value.\n"
+            "5. Be concise but comprehensive in your analysis.\n"
+            "6. Ensure the JSON can be parsed without any errors.\n\n"
+            "Conversation Context:\n"
+            f"{context_text}\n\n"
+            "EXAMPLE VALID RESPONSE:\n"
+            '{"answer": "The mean of the Age column is 35.6 years based on the provided DataFrame."}'
+        )
 
         user_content = (
             f"DataFrame Context:\n"
@@ -236,12 +329,21 @@ class Augini:
             parsed_response = extract_json(response)
             answer = parsed_response.get('answer', 'I could not generate a response.')
 
-            conversation_entry = {
+             # Store full conversation history
+            full_entry = {
+                "timestamp": datetime.now(),
                 "query": query,
                 "response": answer,
                 "df_context": df_info
             }
-            self.conversation_history.append(conversation_entry)
+            self.full_conversation_history.append(full_entry)
+
+            # Generate and store context summary
+            context_summary = self._generate_context_summary(query, answer)
+            self.context_summaries.append(context_summary)
+            
+            # Prune context summaries
+            self._prune_context_summaries()
 
             return answer
 
@@ -258,3 +360,29 @@ class Augini:
 
             return error_response
             
+
+    def get_conversation_history(self, mode='full'):
+        """
+        Retrieve conversation history
+        
+        Args:
+            mode (str): 'full' or 'summary'
+        """
+        if mode == 'full':
+            return self.full_conversation_history
+        elif mode == 'summary':
+            return self.context_summaries
+        else:
+            raise ValueError("Mode must be 'full' or 'summary'")
+
+    def clear_conversation_history(self, mode='all'):
+        """
+        Clear conversation history
+        
+        Args:
+            mode (str): 'full', 'summary', or 'all'
+        """
+        if mode in ['full', 'all']:
+            self.full_conversation_history.clear()
+        if mode in ['summary', 'all']:
+            self.context_summaries.clear()

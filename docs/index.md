@@ -55,7 +55,7 @@ Here's a simple example of how to use Augini:
 from augini import Augini
 import pandas as pd
 
-api_key = "OpenAI or OpenRouter"
+api_key = "OpenAI or OpenRouter token"
 
 # OpenAI
 augini = Augini(api_key=api_key,  model='gpt-4-turbo', use_openrouter=False)

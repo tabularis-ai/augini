@@ -1,3 +1,19 @@
 site_name: Augini
 site_url: http://augini.github.io
 
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: blue
+    - scheme: dark
+      primary: indigo
+      accent: blue
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - navigation.tabs
+    - toc.integrate
+  logo: assets/images/logo_augini.png
