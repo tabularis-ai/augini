@@ -17,3 +17,7 @@ theme:
     - navigation.tabs
     - toc.integrate
   logo: assets/images/logo_augini.png
+extra: 
+  social: 
+  - icon: fontawesome/brands/discord 
+    link: https://discord.gg/sznxwdqBXj

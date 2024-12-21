@@ -4,8 +4,12 @@
   <img src="assets/images/logo_augini.png" alt="augini logo" width="200"/>
 </p>
 
+<a href="https://discord.gg/sznxwdqBXj">
+  <img src="https://img.shields.io/badge/Discord-7289DA?&amp;logo=discord&amp;logoColor=white">
+</a>
 
-# augini: AI-Powered Tabular Data Augmentation, Generation, Labeling, and Anonymization 
+
+# AI-Powered Tabular Data Augmentation, Generation, Labeling, and Anonymization 
 
 `augini` is a versatile Python framework that leverages AI for comprehensive data manipulation. It uses large language models to augment, generate, and anonymize tabular data, creating realistic and privacy-preserving datasets.
 
@@ -76,3 +80,7 @@ result_df = augini.augment_columns(df, ['NAME', 'OCCUPATION', 'FAVORITE_DRINK'])
 
 print(result_df)
 ```
+
+### Contact us
+- [info@tabularis.ai](mailto:info@tabularis.ai)
+
