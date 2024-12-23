@@ -187,7 +187,7 @@ import pandas as pd
 
 # Initialize Augini
 api_key = "your_api_key_here"
-augini = Augini(api_key=api_key, use_openrouter=True, model='gpt-3.5-turbo')
+augini = Augini(api_key=api_key, use_openrouter=True, model='gpt-4-turbo')
 
 # Create a sample DataFrame with sentences
 data = {
