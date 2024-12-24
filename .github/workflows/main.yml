@@ -1,32 +1,40 @@
 name: Deploy MkDocs
-
 on:
   push:
     branches:
-      - main  # Adjust this to your default branch if it's not "main"
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Install dependencies
-      run: |
-        pip install mkdocs-material
-        pip install mkdocs-material-extensions
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --global --add safe.directory /github/workspace
 
-    - name: Deploy MkDocs
-      uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
-      with:
-        entrypoint: mkdocs
-        args: gh-deploy --force
+      - name: Install dependencies
+        run: |
+          pip install mkdocs-material
+          pip install mkdocs-material-extensions
 
-
+      - name: Deploy MkDocs
+        uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          entrypoint: mkdocs
+          args: gh-deploy --force
