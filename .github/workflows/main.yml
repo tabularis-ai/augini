@@ -23,9 +23,10 @@ jobs:
         pip install mkdocs-material
         pip install mkdocs-material-extensions
 
-    - name: Deploy to GitHub Pages
+    - name: Deploy MkDocs
       uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
       with:
-        entryPoint: mkdocs
-        args: --config-file mkdocs.yml
+        entrypoint: mkdocs
+        args: gh-deploy --force
+
 
