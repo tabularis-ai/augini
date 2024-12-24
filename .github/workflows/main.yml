@@ -1,0 +1,29 @@
+name: Deploy MkDocs
+
+on:
+  push:
+    branches:
+      - main  # Adjust this to your default branch if it's not "main"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install mkdocs-material
+        pip install mkdocs-material-extensions
+
+    - name: Deploy to GitHub Pages
+      uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
+      with:
+        target_branch: gh-pages
