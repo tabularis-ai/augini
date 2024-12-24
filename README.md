@@ -252,7 +252,7 @@ Output:
 
 ### Chat
 
-`augini` allows you to gain more information about the intricacies of your data using the chat method. It enables interactive querying of pandas DataFrames using natural language while maintaining conversation history and uses contextual awareness to provide more relevant responses over time:
+Augini allows you to gain more information about the intricacies of your data using the chat method. It enables interactive querying of pandas DataFrames using natural language while maintaining conversation history and uses contextual awareness to provide more relevant responses over time:
 
 ```python
 from augini import Augini
