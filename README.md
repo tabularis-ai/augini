@@ -250,6 +250,57 @@ Output:
 |  4 | The new policy will be implemented next month. | Statement        | Neutral     | Policy  |
 ```
 
+### Chat
+
+`augini` allows you to gain more information about the intricacies of your data using the chat method. It enables interactive querying of pandas DataFrames using natural language while maintaining conversation history and uses contextual awareness to provide more relevant responses over time:
+
+```python
+
+# Create a sample customer dataset
+np.random.seed(42)
+n_customers = 100
+
+data = {
+    'CustomerID': [f'C{i:04d}' for i in range(1, n_customers + 1)],
+    'Age': np.random.randint(18, 80, n_customers),
+    'Tenure': np.random.randint(0, 10, n_customers),
+    'MonthlyCharges': np.random.uniform(20, 200, n_customers).round(2),
+    'TotalCharges': np.random.uniform(100, 5000, n_customers).round(2),
+    'Contract': np.random.choice(['Month-to-month', 'One year', 'Two year'], n_customers),
+    'PaymentMethod': np.random.choice(['Electronic check', 'Mailed check', 'Bank transfer', 'Credit card'], n_customers),
+    'Churn': np.random.choice([0, 1], n_customers, p=[0.7, 0.3])  # 30% churn rate
+}
+
+df = pd.DataFrame(data)
+
+# We augment the data a bit.
+augment_prompt = """
+Based on the customer's age, tenure, monthly charges, total charges, contract type, and payment method, suggest:
+1. A likely reason for churn (if applicable)
+2. A personalized retention offer
+3. The customer's estimated lifetime value (in dollars)
+
+Respond with a JSON object with keys 'ChurnReason', 'RetentionOffer', and 'EstimatedLTV'.
+"""
+
+df = augini.augment_columns(df, ['ChurnReason', 'RetentionOffer', 'EstimatedLTV'], custom_prompt=augment_prompt)
+
+# Ask a question about the data
+response = augini.chat("What is the average of the LTV?", df)
+print(response)
+
+# Ask a followup question about the data
+response = augini.chat("Can you tell me more about the mean as a metric?",df)
+print(response)
+
+# Get conversation history
+full_history = augini.get_conversation_history(mode='full')
+summary_history = augini.get_conversation_history(mode='summary') # This is used to get the summary conversation history instead(which is used for contextual awareness)
+
+# Clear conversation history
+augini.clear_conversation_history(mode='all')
+```
+
 ### Contact 
 
 If you are looking for an enterprise version of the tool or a need local version please contact us:
