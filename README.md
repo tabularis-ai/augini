@@ -63,7 +63,7 @@ import pandas as pd
 api_key = "OpenAI or OpenRouter"
 
 # OpenAI
-augini = Augini(api_key=api_key,  model='gpt-4-turbo', use_openrouter=False)
+augini = Augini(api_key=api_key,  model='gpt-4o-mini', use_openrouter=False)
 
 # OpenRouter 
 augini = Augini(api_key=api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct')
@@ -125,7 +125,7 @@ import pandas as pd
 api_key = "OpenAI or OpenRouter"
 
 # OpenAI
-augini = Augini(api_key=api_key, debug=False, use_openrouter=False, model='gpt-4-turbo')
+augini = Augini(api_key=api_key, debug=False, use_openrouter=False, model='gpt-4o-mini')
 
 # OpenRouter 
 augini = Augini(api_key=api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct')
@@ -187,7 +187,7 @@ import pandas as pd
 
 # Initialize Augini
 api_key = "your_api_key_here"
-augini = Augini(api_key=api_key, use_openrouter=True, model='gpt-4-turbo')
+augini = Augini(api_key=api_key, use_openrouter=True, model='gpt-4o-mini')
 
 # Create a sample DataFrame with sentences
 data = {
