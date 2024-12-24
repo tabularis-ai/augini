@@ -26,4 +26,6 @@ jobs:
     - name: Deploy to GitHub Pages
       uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
       with:
-        target_branch: gh-pages
+        entryPoint: mkdocs
+        args: --config-file mkdocs.yml
+
