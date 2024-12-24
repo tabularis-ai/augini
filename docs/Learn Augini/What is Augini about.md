@@ -51,7 +51,7 @@ print(response)
 You can ask follow up questions by simply querying augini again.
 
 ```python
-response = augini.chat(query="What is the average presented in this case the median or the mean?", df=df)
+response = augini.chat(query="What is the average presented in this case? The median or the mean?", df=df)
 print(response)
 ```
 

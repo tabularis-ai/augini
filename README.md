@@ -255,6 +255,12 @@ Output:
 `augini` allows you to gain more information about the intricacies of your data using the chat method. It enables interactive querying of pandas DataFrames using natural language while maintaining conversation history and uses contextual awareness to provide more relevant responses over time:
 
 ```python
+from augini import Augini
+import pandas as pd
+
+# Initialize Augini
+api_key = "your_api_key_here"
+augini = Augini(api_key=api_key, use_openrouter=True, model='gpt-4o-mini')
 
 # Create a sample customer dataset
 np.random.seed(42)
