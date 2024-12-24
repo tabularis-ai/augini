@@ -11,30 +11,23 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          persist-credentials: true
-
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
-
-      - name: Configure Git
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git config --global --add safe.directory /github/workspace
 
       - name: Install dependencies
         run: |
           pip install mkdocs-material
           pip install mkdocs-material-extensions
 
-      - name: Deploy MkDocs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@1.26
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build site
+        run: mkdocs build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          entrypoint: mkdocs
-          args: gh-deploy --force
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          force_orphan: true
