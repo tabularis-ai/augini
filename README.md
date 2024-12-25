@@ -2,6 +2,8 @@
 
 # augini: AI-Powered Data Assistant
 
+🔥  Demo: https://huggingface.co/spaces/tabularisai/augini
+
 <p align="center">
   <img src="img/logo_augini.png" alt="augini logo" width="200"/>
 </p>
