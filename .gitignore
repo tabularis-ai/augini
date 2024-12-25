@@ -30,6 +30,9 @@ wheels/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# gradio
+gradio_app
+
 # Environment
 .env
 .venv

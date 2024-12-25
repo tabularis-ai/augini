@@ -4,5 +4,7 @@ tqdm
 numpy<2.0.0
 nest_asyncio
 pydantic
-sentence-transformers>=2.2.0
-spacy>=3.5.0
+
+# Optional dependencies for memory/NLP features
+sentence-transformers>=2.2.0; extra == 'memory'
+spacy>=3.5.0; extra == 'memory'

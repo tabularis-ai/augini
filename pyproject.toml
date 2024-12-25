@@ -1,4 +1,3 @@
-
 [project]
 name = "augini"
 version = "0.2.0"
@@ -26,6 +25,13 @@ dependencies = [
     "numpy<2.0.0",
     "tqdm",
     "nest_asyncio",
+    "pydantic",
+]
+
+[project.optional-dependencies]
+memory = [
+    "sentence-transformers>=2.2.0",
+    "spacy>=3.5.0",
 ]
 
 [project.urls]

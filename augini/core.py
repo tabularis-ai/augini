@@ -12,7 +12,6 @@ import re
 from .utils import extract_json, generate_default_prompt
 from .exceptions import APIError, DataProcessingError
 from IPython.display import display, Markdown
-from sentence_transformers import SentenceTransformer
 
 nest_asyncio.apply()
 
@@ -40,12 +39,13 @@ class Augini:
         self,
         api_key: str,
         use_openrouter: bool = True,
-        model: str = "gpt-3.5-turbo",
+        model: str = "gpt-4o-mini",
         temperature: float = 0.8,
-        max_tokens: int = 500,
+        max_tokens: int = 750,
         concurrency_limit: int = 10,
         base_url: str = "https://openrouter.ai/api/v1",
-        debug: bool = False
+        debug: bool = False,
+        enable_memory: bool = False
     ):
         if use_openrouter:
             self.client = AsyncOpenAI(
@@ -60,25 +60,55 @@ class Augini:
         self.max_tokens = max_tokens
         self.semaphore = asyncio.Semaphore(concurrency_limit)
         self.debug = debug
-        self.conversation_history = []
-         # Embedding-based context tracking
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         
-        # Full conversation history
-        self.full_conversation_history: List[Dict[str, Any]] = []
+        # Initialize memory-related attributes only if enabled
+        self.enable_memory = enable_memory
+        self.embedding_model = None
         
-        # Contextual summaries with embeddings
-        self.context_summaries: List[Dict[str, Any]] = []
-        
-        # Similarity and context management parameters
-        self.context_similarity_threshold = 0.7
-        self.max_context_summaries = 5
-        self.context_window_tokens = 1000
+        # Initialize all memory-related attributes as None
+        self.conversation_history = None
+        self.full_conversation_history = None
+        self.context_summaries = None
+        self.context_similarity_threshold = None
+        self.max_context_summaries = None
+        self.context_window_tokens = None
+
+        # Add cache for smart data context
+        self._data_context_cache = None
+        self._data_hash = None
+
+        if enable_memory:
+            # Only initialize memory-related attributes if memory is enabled
+            self.conversation_history = []
+            self.full_conversation_history = []
+            self.context_summaries = []
+            self.context_similarity_threshold = 0.7
+            self.max_context_summaries = 5
+            self.context_window_tokens = 1000
 
         if debug:
             logger.setLevel(logging.INFO)
             logging.getLogger("openai").setLevel(logging.INFO)
             logging.getLogger("httpx").setLevel(logging.INFO)
+
+    def _initialize_memory(self):
+        """Lazy initialization of sentence transformer model"""
+        if not self.enable_memory:
+            raise RuntimeError(
+                "Memory features are disabled. Enable them by setting enable_memory=True "
+                "and installing required dependencies: pip install augini[memory]"
+            )
+        
+        if self.embedding_model is None:
+            try:
+                from sentence_transformers import SentenceTransformer
+                import spacy  # Also check for spacy
+                self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            except ImportError:
+                raise ImportError(
+                    "Memory features require additional dependencies. "
+                    "Install them with: pip install augini[memory]"
+                )
 
     async def _get_response(self, prompt: str, row_data: Dict[str, Any], feature_names: List[str], system_content: Optional[str] = None) -> str:
         async with self.semaphore:
@@ -165,9 +195,9 @@ class Augini:
         return df
     
     def _generate_context_summary(self, query: str, response: str) -> Dict[str, Any]:
-        """
-        Generate a contextual summary with embedding
-        """
+        """Generate a contextual summary with embedding"""
+        self._initialize_memory()  # Lazy initialization
+        
         # Combine query and response for comprehensive context
         context_text = f"{query} | {response}"
         
@@ -184,12 +214,9 @@ class Augini:
         return summary
     
     def _calculate_context_relevance(self, new_query: str) -> List[float]:
-        """
-        Calculate relevance scores of new query to existing context summaries
+        """Calculate relevance scores of new query to existing context summaries"""
+        self._initialize_memory()  # Lazy initialization
         
-        Returns:
-        - List of similarity scores for each existing context summary
-        """
         # Encode new query
         new_query_embedding = self.embedding_model.encode(new_query)
         
@@ -197,8 +224,6 @@ class Augini:
         similarities = []
         for summary in self.context_summaries:
             prev_embedding = np.array(summary['embedding'])
-            
-            # Cosine similarity calculation
             similarity = np.dot(new_query_embedding, prev_embedding) / (
                 np.linalg.norm(new_query_embedding) * np.linalg.norm(prev_embedding)
             )
@@ -261,105 +286,275 @@ class Augini:
         else:
             return asyncio.run(self._generate_features(result_df, [column_name], prompt_template))
         
-    def chat(self, query: str, df: pd.DataFrame) -> str:
+    def _generate_smart_data_context(self, df: pd.DataFrame) -> Dict[str, Any]:
         """
-        Chat method to answer questions about a DataFrame using AI.
-
-        Args:
-            query (str): Natural language question about the DataFrame
-            df (pd.DataFrame): The DataFrame to analyze
-
-        Returns:
-            str: AI-generated response to the query
+        Generate comprehensive data context from DataFrame.
+        Includes basic info, statistics, correlations, and data samples.
         """
-
-        similarities = self._calculate_context_relevance(query)
-        
-        context_text = ""
-        if similarities and max(similarities) > self.context_similarity_threshold:
-            relevant_indices = [
-                i for i, sim in enumerate(similarities) 
-                if sim > self.context_similarity_threshold
-            ]
-            
-            # Combine relevant context summaries
-            context_text = " | ".join([
-                self.context_summaries[i]['text'] 
-                for i in relevant_indices
-            ])
-
-        df_info = {
+        # Basic DataFrame info
+        basic_info = {
             "columns": list(df.columns),
             "shape": df.shape,
-            "column_types": df.dtypes.to_dict(),
-            "summary_stats": df.describe().to_dict()
+            "dtypes": df.dtypes.astype(str).to_dict()
         }
 
-        system_content = (
-            "You are a precise data analysis assistant. Follow these CRITICAL instructions EXACTLY:\n"
-            "1. ALWAYS respond in a VALID JSON format with ONLY an 'answer' key.\n"
-            "2. The 'answer' value MUST be a STRING containing your full, complete response.\n"
-            "3. DO NOT use any escape characters, newlines, or special formatting in the JSON.\n"
-            "4. If you cannot answer the question, return a clear explanation as the answer value.\n"
-            "5. Be concise but comprehensive in your analysis.\n"
-            "6. Ensure the JSON can be parsed without any errors.\n\n"
-            "Conversation Context:\n"
-            f"{context_text}\n\n"
-            "EXAMPLE VALID RESPONSE:\n"
-            '{"answer": "The mean of the Age column is 35.6 years based on the provided DataFrame."}'
-        )
+        # Generate statistics for all columns
+        column_stats = {}
+        
+        for col in df.columns:
+            col_stats = {}
+            
+            if df[col].dtype in ['int64', 'float64']:
+                # Numerical column stats
+                desc = df[col].describe()
+                col_stats.update({
+                    "type": "numeric",
+                    "mean": desc['mean'],
+                    "median": df[col].median(),
+                    "std": desc['std'],
+                    "range": [desc['min'], desc['max']],
+                    "missing": df[col].isna().sum(),
+                    "distribution": {
+                        'quartiles': [desc['25%'], desc['50%'], desc['75%']],
+                        'skew': df[col].skew()
+                    }
+                })
+            else:
+                # Categorical column stats
+                value_counts = df[col].value_counts()
+                col_stats.update({
+                    "type": "categorical",
+                    "unique_values": len(value_counts),
+                    "top_categories": value_counts.head(5).to_dict(),
+                    "missing": df[col].isna().sum()
+                })
+
+            column_stats[col] = col_stats
+
+        # Calculate correlations between numeric columns
+        numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns
+        correlations = {}
+        
+        if len(numeric_cols) > 1:
+            corr_matrix = df[numeric_cols].corr()
+            for i, col1 in enumerate(numeric_cols):
+                for col2 in numeric_cols[i+1:]:
+                    correlation = corr_matrix.loc[col1, col2]
+                    if abs(correlation) > 0.3:  # Only include meaningful correlations
+                        correlations[f"{col1}_vs_{col2}"] = correlation
+
+        # Add data samples
+        samples = {
+            "head": df.head(3).to_dict(orient='records'),
+            "random": df.sample(n=min(3, len(df))).to_dict(orient='records')
+        }
+
+        # Add data quality metrics
+        data_quality = {
+            "total_missing": df.isna().sum().sum(),
+            "missing_by_column": df.isna().sum().to_dict(),
+            "duplicated_rows": df.duplicated().sum(),
+            "memory_usage": df.memory_usage(deep=True).sum() / 1024**2  # in MB
+        }
+
+        return {
+            "basic_info": basic_info,
+            "column_stats": column_stats,
+            "correlations": correlations,
+            "samples": samples,
+            "data_quality": data_quality
+        }
+
+    def _calculate_df_hash(self, df: pd.DataFrame) -> str:
+        """Calculate a hash for the DataFrame to detect changes"""
+        # Use a combination of shape, columns, and sample of data for quick hash
+        df_info = f"{df.shape}_{list(df.columns)}_{df.head(1).to_json()}_{df.tail(1).to_json()}"
+        return str(hash(df_info))
+
+    def _get_smart_data_context(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """Get smart data context with caching"""
+        current_hash = self._calculate_df_hash(df)
+        
+        # Return cached context if DataFrame hasn't changed
+        if self._data_hash == current_hash and self._data_context_cache is not None:
+            if self.debug:
+                logger.info("Using cached data context")
+            return self._data_context_cache
+        
+        # Generate new context if DataFrame has changed
+        if self.debug:
+            logger.info("Generating new data context")
+            
+        context = self._generate_smart_data_context(df)
+        
+        # Update cache
+        self._data_context_cache = context
+        self._data_hash = current_hash
+        
+        return context
+
+    def chat(self, query: str, df: pd.DataFrame, use_memory: bool = False) -> str:
+        """
+        Chat method with smart data context generation.
+        """
+        # Initialize memory-related attributes if they're None
+        if use_memory:
+            if self.full_conversation_history is None:
+                self.full_conversation_history = []
+            if self.context_summaries is None:
+                self.context_summaries = []
+
+        context_text = ""
+        if use_memory:
+            try:
+                self._initialize_memory()
+                similarities = self._calculate_context_relevance(query)
+                if similarities and max(similarities) > self.context_similarity_threshold:
+                    relevant_indices = [
+                        i for i, sim in enumerate(similarities) 
+                        if sim > self.context_similarity_threshold
+                    ]
+                    context_text = " | ".join([
+                        self.context_summaries[i]['text'] 
+                        for i in relevant_indices
+                    ])
+            except (RuntimeError, ImportError) as e:
+                logger.warning(f"Memory features unavailable: {str(e)}")
+
+        # Use cached data context if available
+        df_info = self._get_smart_data_context(df)
 
         user_content = (
-            f"DataFrame Context:\n"
-            f"Columns: {df_info['columns']}\n"
-            f"Shape: {df_info['shape']}\n"
-            f"Column Types: {df_info['column_types']}\n"
-            f"Summary Statistics: {df_info['summary_stats']}\n\n"
+            f"DataFrame Analysis Context:\n"
+            f"Basic Info:\n"
+            f"- Columns: {df_info['basic_info']['columns']}\n"
+            f"- Shape: {df_info['basic_info']['shape']}\n"
+            f"- Data Types: {df_info['basic_info']['dtypes']}\n\n"
+            
+            f"Column Statistics:\n"
+            f"{df_info['column_stats']}\n\n"
+            
+            f"Correlations:\n"
+            f"{df_info['correlations']}\n\n"
+            
+            f"Data Quality:\n"
+            f"- Total Missing Values: {df_info['data_quality']['total_missing']}\n"
+            f"- Duplicated Rows: {df_info['data_quality']['duplicated_rows']}\n"
+            f"- Missing by Column: {df_info['data_quality']['missing_by_column']}\n\n"
+            
+            f"Sample Data:\n"
+            f"First 3 rows: {df_info['samples']['head']}\n\n"
+            
             f"Question: {query}"
+        )
+
+        system_content = (
+            "You are an expert data analyst assistant specialized in tabular data analysis. "
+            "Your response must be a valid, complete JSON object with a single 'answer' key containing markdown-formatted text. "
+            "Make sure to properly close all JSON brackets and escape special characters.\n\n"
+            "If the question is not clear, ask for clarification. IMPORTANT: If the question is not related to the data, ask for a different question.\n\n"
+            
+            # "1. RESPONSE FORMAT REQUIREMENTS:\n"
+            # "   - Start with '{\"answer\": \"' exactly\n"
+            # "   - End with '\"}' exactly\n"
+            # "   - Escape all quotes within the answer text\n"
+            # "   - Keep responses concise and focused\n"
+            # "   - Ensure JSON is properly closed\n\n"
+            
+            "ANALYSIS SCOPE:\n"
+            "   - Answer questions about data characteristics, patterns, and quality\n"
+            "   - Analyze data distribution, relationships, and anomalies\n"
+            "   - Assess data authenticity and potential synthetic patterns\n"
+            "   - Consider data collection and generation methods\n"
+            "   - Evaluate data consistency and realism\n\n"
+            
+            "RESPONSE APPROACH:\n"
+            "   - Start with direct answers to the specific question\n"
+            "   - Support claims with evidence from the data\n"
+            "   - Consider both statistical and qualitative indicators\n"
+            "   - Note any limitations or uncertainties\n"
+            "   - Use data patterns to inform conclusions\n\n"
+            
+            # "4. MARKDOWN FORMATTING:\n"
+            # "   - Use markdown for clear structure\n"
+            # "   - Bold key findings with **text**\n"
+            # "   - Use `backticks` for column names\n"
+            # "   - Add relevant emojis for emphasis\n"
+            # "   - Include evidence in > blockquotes\n\n"
+            
+            "Example of correctly formatted response:\n"
+            '{\"answer\": \"## Analysis Results 🔍\\n\\n**Key Finding:** The data shows interesting patterns\\n\\n### Details\\n- The `column_name` shows X\\n- Statistics indicate Y\\n\\n> Evidence: Z\"}'
+            
+            + (f"\n\nPrevious Conversation Context:\n{context_text}" if context_text else "")
         )
 
         try:
             response = asyncio.run(self._get_response(
                 prompt=user_content, 
                 row_data=df_info, 
-                feature_names=['answer']
-                ,system_content=system_content
+                feature_names=['answer'],
+                system_content=system_content
             ))
 
-            parsed_response = extract_json(response)
-            answer = parsed_response.get('answer', 'I could not generate a response.')
+            try:
+                # Clean up the response if it contains markdown-style code blocks
+                response = response.replace("```json", "").replace("```", "").strip()
+                parsed_response = extract_json(response)
+                
+                if parsed_response is None or 'answer' not in parsed_response:
+                    # If JSON parsing fails or 'answer' key is missing, return the raw response with formatting
+                    formatted_response = (
+                        "## ⚠️ Response Format Note\n\n"
+                        "I received a response but it wasn't in the expected JSON format. "
+                        "Here's the raw response:\n\n"
+                        "---\n\n"
+                        f"{response}\n\n"
+                        "---\n\n"
+                        "_Please try asking your question again._"
+                    )
+                    return formatted_response
+                
+                answer = parsed_response['answer']
+            except Exception as json_error:
+                # Handle JSON parsing errors with a user-friendly message
+                formatted_response = (
+                    "## ⚠️ Response Processing Error\n\n"
+                    "I encountered an error while processing the response. "
+                    f"Error details: {str(json_error)}\n\n"
+                    "Here's the raw response I received:\n\n"
+                    "---\n\n"
+                    f"{response}\n\n"
+                    "---\n\n"
+                    "_Please try rephrasing your question._"
+                )
+                return formatted_response
 
-             # Store full conversation history
-            full_entry = {
-                "timestamp": datetime.now(),
-                "query": query,
-                "response": answer,
-                "df_context": df_info
-            }
-            self.full_conversation_history.append(full_entry)
+            # Store full conversation history
+            if use_memory and self.full_conversation_history is not None:
+                full_entry = {
+                    "timestamp": datetime.now(),
+                    "query": query,
+                    "response": answer,
+                    "df_context": df_info
+                }
+                self.full_conversation_history.append(full_entry)
 
-            # Generate and store context summary
-            context_summary = self._generate_context_summary(query, answer)
-            self.context_summaries.append(context_summary)
-            
-            # Prune context summaries
-            self._prune_context_summaries()
+                # Generate and store context summary
+                context_summary = self._generate_context_summary(query, answer)
+                if self.context_summaries is not None:
+                    self.context_summaries.append(context_summary)
+                    # Prune context summaries
+                    self._prune_context_summaries()
 
             return answer
 
         except Exception as e:
-            error_response = f"An error occurred while processing your query: {str(e)}"
-            
-            # Store the conversation with the error response
-            conversation_entry = {
-                "query": query,
-                "response": error_response,
-                "df_context": df_info
-            }
-            self.conversation_history.append(conversation_entry)
-
+            error_response = (
+                "## ❌ Error Processing Query\n\n"
+                f"An error occurred while processing your query: {str(e)}\n\n"
+                "_Please try again or rephrase your question._"
+            )
             return error_response
-            
 
     def get_conversation_history(self, mode='full'):
         """
