@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) [![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
 
-# augini: AI-Powered Data Assistant
+# augini: AI-Powered Tabular Data Assistant
 
 🔥  Demo: https://huggingface.co/spaces/tabularisai/augini
 
