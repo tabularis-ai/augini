@@ -1,6 +1,6 @@
 [![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) [![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
 
-# augini: AI-Powered Tabular Data Assistant
+# augini: RAG-Powered Tabular Data Assistant
 
 🔥  Demo: https://huggingface.co/spaces/tabularisai/augini
 
@@ -8,13 +8,13 @@
   <img src="img/logo_augini.png" alt="augini logo" width="200"/>
 </p>
 
-`augini` is an AI-powered data assistant that helps you understand, augment, and transform your tabular data. Built with state-of-the-art language models, it provides an intuitive chat interface and powerful data manipulation capabilities.
+`augini` is an AI-powered data assistant that brings RAG (Retrieval-Augmented Generation) capabilities to your tabular data (CSV, Excel, XLSX). Built with state-of-the-art language models, it provides an intuitive chat interface for data analysis and powerful data manipulation capabilities.
 
 ## Key Features
 
-### 🤖 Interactive Data Chat
+### 🤖 Interactive Data Chat (aka RAG for Tables)
 
-Have natural conversations with your data using `augini`'s chat interface:
+Have natural conversations with your data using `augini`'s chat interface. Works with any tabular format (CSV, Excel, Pandas DataFrames):
 
 ```python
 from augini import Augini
@@ -23,8 +23,8 @@ import pandas as pd
 # Initialize with your preferred model
 augini = Augini(api_key="your-api-key", model="gpt-4o-mini")
 
-# Load your data
-df = pd.read_csv("your_data.csv")
+# Load your data (CSV, Excel, or any pandas-supported format)
+df = pd.read_csv("your_data.csv")  # or pd.read_excel("your_data.xlsx")
 
 # Start chatting with your data - properly display markdown responses
 from IPython.display import display, Markdown
@@ -32,7 +32,7 @@ from IPython.display import display, Markdown
 response = augini.chat("What are the main patterns in this dataset?", df)
 display(Markdown(response))
 
-# Ask follow-up questions
+# Ask follow-up questions with context awareness
 response = augini.chat("Can you analyze the correlation between age and income?", df)
 display(Markdown(response))
 ```
