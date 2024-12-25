@@ -48,6 +48,8 @@ venv/
 ehthumbs.db
 Thumbs.db
 
+# mkdocs documentation
+/site
 
 testing.ipynb
 testing.py
