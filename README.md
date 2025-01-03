@@ -8,33 +8,42 @@
   <img src="img/logo_augini.png" alt="augini logo" width="200"/>
 </p>
 
-`augini` is an AI-powered data assistant that helps you understand, augment, and transform your tabular data. Built with state-of-the-art language models, it provides an intuitive chat interface and powerful data manipulation capabilities.
+`augini` is an AI-powered data assistant that brings RAG (Retrieval-Augmented Generation) capabilities to your tabular data (CSV, Excel, XLSX). Built with state-of-the-art language models, it provides an intuitive chat interface for data analysis and powerful data manipulation capabilities.
 
 ## Key Features
 
-### 🤖 Interactive Data Chat
+### 🤖 Interactive Data Chat (aka RAG for Tables)
 
-Have natural conversations with your data using `augini`'s chat interface:
+Have natural conversations with your data using `augini`'s chat interface. Works with any tabular format (CSV, Excel, Pandas DataFrames):
 
 ```python
-from augini import Augini
+import augini as au
 import pandas as pd
 
-# Initialize with your preferred model
-augini = Augini(api_key="your-api-key", model="gpt-4o-mini")
+# Load your data (CSV, Excel, or any pandas-supported format)
+df = pd.read_csv("your_data.csv")  # or pd.read_excel("your_data.xlsx")
 
-# Load your data
-df = pd.read_csv("your_data.csv")
+# Initialize the chat interface
+chat = au.Chat(
+    df=df,
+    api_key="your-api-key",
+    model="gpt-4o-mini",
+    enable_memory=True  # Enable conversation memory
+)
 
 # Start chatting with your data - properly display markdown responses
 from IPython.display import display, Markdown
 
-response = augini.chat("What are the main patterns in this dataset?", df)
+response = chat("What are the main patterns in this dataset?")
 display(Markdown(response))
 
-# Ask follow-up questions
-response = augini.chat("Can you analyze the correlation between age and income?", df)
+# Ask follow-up questions with context awareness
+response = chat("Can you analyze the correlation between age and income?")
 display(Markdown(response))
+
+# Access conversation history
+full_history = chat.get_conversation_history('full')
+summary_history = chat.get_conversation_history('summary')
 ```
 
 ### 🔄 Intelligent Data Augmentation
@@ -42,8 +51,17 @@ display(Markdown(response))
 Enhance your datasets with AI-generated features:
 
 ```python
+import augini as au
+import pandas as pd
+
+# Initialize the augmentation interface
+augmenter = au.Augment(
+    api_key="your-api-key",
+    model="gpt-4o-mini"
+)
+
 # Add synthetic features based on existing data
-result_df = augini.augment_columns(df, ['occupation', 'interests', 'personality_type'])
+result_df = augmenter.augment_columns(df, ['occupation', 'interests', 'personality_type'])
 
 # Generate custom features with specific prompts
 custom_prompt = """
@@ -55,9 +73,15 @@ Based on the person's age and location, suggest:
 Respond with a JSON object with keys 'income_bracket', 'shopping_preferences', 'travel_style'.
 """
 
-enriched_df = augini.augment_columns(df, 
-    ['income_bracket', 'shopping_preferences', 'travel_style'],
+enriched_df = augmenter.augment_columns(df, 
+    columns=['income_bracket', 'shopping_preferences', 'travel_style'],
     custom_prompt=custom_prompt
+)
+
+# Generate single column
+result_df = augmenter.augment_single(df, 
+    column_name='occupation',
+    custom_prompt="Suggest a realistic occupation based on the person's profile."
 )
 ```
 
@@ -66,6 +90,9 @@ enriched_df = augini.augment_columns(df,
 Generate privacy-safe synthetic data while preserving statistical properties:
 
 ```python
+import augini as au
+import pandas as pd
+
 # Define anonymization strategy
 anonymize_prompt = """
 Create an anonymized version that:
@@ -77,8 +104,8 @@ Respond with a JSON object containing anonymized values.
 """
 
 # Apply anonymization
-anonymous_df = augini.augment_columns(df, 
-    ['name_anon', 'email_anon', 'address_anon'],
+anonymous_df = augmenter.augment_columns(df, 
+    columns=['name_anon', 'email_anon', 'address_anon'],
     custom_prompt=anonymize_prompt
 )
 ```
@@ -92,13 +119,52 @@ pip install augini
 ## Quick Start
 
 1. Get your API key from OpenAI or OpenRouter
-2. Initialize Augini:
+2. Initialize augini components:
 ```python
+import augini as au
+import pandas as pd
+
 # Using OpenAI
-augini = Augini(api_key="your-api-key", model="gpt-4o-mini", use_openrouter=False)
+chat = au.Chat(df=df, api_key="your-api-key", model="gpt-4", use_openrouter=False)
+augmenter = au.Augment(api_key="your-api-key", model="gpt-4", use_openrouter=False)
 
 # Using OpenRouter
-augini = Augini(api_key="your-api-key", model="meta-llama/llama-3-8b-instruct", use_openrouter=True)
+chat = au.Chat(df=df, api_key="your-api-key", model="meta-llama/llama-3-8b-instruct", use_openrouter=True)
+augmenter = au.Augment(api_key="your-api-key", model="meta-llama/llama-3-8b-instruct", use_openrouter=True)
+```
+
+## Advanced Features
+
+### Memory Management in Chat
+
+The Chat interface supports conversation memory for better context awareness:
+
+```python
+import augini as au
+import pandas as pd
+
+# Enable memory during initialization
+chat = au.Chat(df=df, api_key="your-api-key", enable_memory=True)
+
+# Access and manage conversation history
+full_history = chat.get_conversation_history('full')
+summary_history = chat.get_conversation_history('summary')
+
+# Clear history when needed
+chat.clear_conversation_history('all')  # or 'full' or 'summary'
+```
+
+### Concurrent Data Augmentation
+
+The Augment interface supports efficient concurrent processing:
+
+```python
+import augini as au
+
+augmenter = au.Augment(
+    api_key="your-api-key",
+    max_concurrent=5  # Control concurrent API calls
+)
 ```
 
 ## Enterprise Solutions
