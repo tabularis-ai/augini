@@ -1,9 +1,12 @@
+import json
 import logging
 from datetime import datetime
 from openai import OpenAI
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Any, Optional
+
+from augini.tools import AVAILABLE_TOOLS, DataAnalysisTools
 from .exceptions import APIError
 from .utils import extract_json
 import ipywidgets as widgets
@@ -486,6 +489,10 @@ class Chat:
 
     def _get_chat_response(self, query: str) -> str:
         try:
+
+            # Initialize tools
+            self.tools = DataAnalysisTools(self.df)
+            
             # Get smart data context
             df_info = self._get_smart_data_context(self.df)
 
@@ -557,17 +564,56 @@ class Chat:
                 + (f"\n\nPrevious Conversation Context:\n{context_text}" if context_text else "")
             )
 
-            response = self.client.chat.completions.create(
+            # First, get the model to choose appropriate tools
+            tool_selection_response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[
                     {"role": "system", "content": system_content},
                     {"role": "user", "content": user_content}
                 ],
+                tools=AVAILABLE_TOOLS,
+                tool_choice="auto",
+                temperature=self.temperature
+            )
+
+            # Process tool calls and gather results
+            tool_results = []
+            
+            if tool_selection_response.choices[0].message.tool_calls:
+                for tool_call in tool_selection_response.choices[0].message.tool_calls:
+                    function_name = tool_call.function.name
+                    function_args = json.loads(tool_call.function.arguments)
+                    
+                    # Call the appropriate method from DataAnalysisTools
+                    if hasattr(self.tools, function_name):
+                        result = getattr(self.tools, function_name)(**function_args)
+                        tool_results.append({
+                            "tool": function_name,
+                            "args": function_args,
+                            "result": result
+                        })
+
+            # Generate final response using tool results
+            final_messages = [
+                {"role": "system", "content": system_content},
+                {"role": "user", "content": user_content},
+                {"role": "assistant", "content": tool_selection_response.choices[0].message.content},
+            ]
+
+            if tool_results:
+                final_messages.append({
+                    "role": "system", 
+                    "content": f"Tool results:\n{json.dumps(tool_results, indent=2)}"
+                })
+
+            final_response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=final_messages,
                 temperature=self.temperature,
                 response_format={"type": "json_object"}
             )
 
-            response_text = response.choices[0].message.content.strip()
+            response_text = final_response.choices[0].message.content.strip()
 
             try:
                 # Clean up the response if it contains markdown-style code blocks
