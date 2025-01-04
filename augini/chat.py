@@ -21,7 +21,7 @@ class Chat:
         df: pd.DataFrame,
         model: str = "gpt-4o-mini",
         api_key: str = None,
-        temperature: float = 0.7,
+        temperature: float = 0.2,
         use_openrouter: bool = True,
         base_url: str = "https://openrouter.ai/api/v1",
         debug: bool = False,
@@ -597,12 +597,11 @@ class Chat:
             final_messages = [
                 {"role": "system", "content": system_content},
                 {"role": "user", "content": user_content},
-                {"role": "assistant", "content": tool_selection_response.choices[0].message.content},
             ]
 
             if tool_results:
                 final_messages.append({
-                    "role": "system", 
+                    "role": "assistant",
                     "content": f"Tool results:\n{json.dumps(tool_results, indent=2)}"
                 })
 
@@ -612,6 +611,9 @@ class Chat:
                 temperature=self.temperature,
                 response_format={"type": "json_object"}
             )
+
+            if not final_response or not final_response.choices:
+                 raise APIError("Invalid or empty response from the API.")
 
             response_text = final_response.choices[0].message.content.strip()
 
@@ -709,3 +711,4 @@ class Chat:
             self.full_conversation_history.clear()
         if mode in ['summary', 'all']:
             self.context_summaries.clear() 
+

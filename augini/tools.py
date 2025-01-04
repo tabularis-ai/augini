@@ -11,6 +11,25 @@ from sklearn.cluster import KMeans
 class DataAnalysisTools:
     def __init__(self, df: pd.DataFrame):
         self.df = df
+
+    def convert_to_json_serializable(self, obj):
+        """Convert non-serializable objects to JSON-compatible types."""
+        if isinstance(obj, (np.bool_, bool)):  # Use np.bool_ or bool
+            return bool(obj)
+        elif isinstance(obj, (np.int64, np.int32, np.int16, np.int8)):
+            return int(obj)
+        elif isinstance(obj, (np.float64, np.float32, np.float16)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):  # Fix: Use np.ndarray only
+            return obj.tolist()
+        elif isinstance(obj, pd.Timestamp):
+            return obj.isoformat()
+        elif isinstance(obj, (list, tuple)):
+            return [self.convert_to_json_serializable(item) for item in obj]
+        elif isinstance(obj, dict):
+            return {key: self.convert_to_json_serializable(value) for key, value in obj.items()}
+        else:
+            return obj
         
     def get_column_stats(self, column_name: str) -> Dict[str, Any]:
         """Calculate comprehensive statistics for a specific column"""
@@ -48,7 +67,7 @@ class DataAnalysisTools:
                 "least_common": value_counts.tail(5).to_dict()
             })
             
-        return stats_dict
+        return self.convert_to_json_serializable(stats_dict)
 
     def correlation_analysis(self, 
                            columns: Optional[List[str]] = None, 
@@ -78,11 +97,13 @@ class DataAnalysisTools:
         # Sort by absolute correlation value
         correlations.sort(key=lambda x: abs(x["correlation"]), reverse=True)
         
-        return {
+        result = {
             "method": method,
             "correlations": correlations,
             "matrix": corr_matrix.to_dict()
         }
+
+        return self.convert_to_json_serializable(result)
 
     def distribution_analysis(self, column_name: str) -> Dict[str, Any]:
         """Analyze the distribution of a column"""
@@ -129,7 +150,7 @@ class DataAnalysisTools:
                 "category_percentages": (value_counts / len(data) * 100).to_dict()
             }
             
-        return analysis
+        return self.convert_to_json_serializable(analysis)
 
     def outlier_detection(self, 
                          column_name: str, 
@@ -172,7 +193,7 @@ class DataAnalysisTools:
                 "outlier_percentage": (sum(outliers_mask) / len(data)) * 100
             }
             
-        return outliers
+        return self.convert_to_json_serializable(outliers)
 
     def time_series_analysis(self, 
                            date_column: str, 
@@ -224,7 +245,7 @@ class DataAnalysisTools:
                 }
             }
             
-        return analysis
+        return self.convert_to_json_serializable(analysis)
 
     def feature_importance(self, 
                          target_column: str, 
@@ -240,10 +261,13 @@ class DataAnalysisTools:
             correlations = numeric_df.corr()[target_column].abs()
             correlations = correlations.sort_values(ascending=False)
             
-            return {
+            result = {
                 "method": "correlation",
                 "importance_scores": correlations.to_dict()
             }
+
+            return self.convert_to_json_serializable(result)
+        
         elif method == 'pca':
             # Use PCA to analyze feature importance
             scaler = StandardScaler()
@@ -259,12 +283,13 @@ class DataAnalysisTools:
                 index=numeric_df.columns
             )
             
-            return {
+            result = {
                 "method": "pca",
                 "explained_variance_ratio": pca.explained_variance_ratio_.tolist(),
                 "cumulative_variance_ratio": np.cumsum(pca.explained_variance_ratio_).tolist(),
                 "feature_weights": feature_importance.to_dict()
             }
+            return self.convert_to_json_serializable(result)
             
         return {"error": "Unsupported method specified"}
 
@@ -303,12 +328,14 @@ class DataAnalysisTools:
                 "feature_stds": data[cluster_mask].std().to_dict()
             }
             
-        return {
+        result = {
             "n_clusters": n_clusters,
             "cluster_stats": cluster_stats,
             "inertia": kmeans.inertia_,
             "cluster_assignments": clusters.tolist()
         }
+
+        return self.convert_to_json_serializable(result)
 
 # Function definitions for tool calling
 AVAILABLE_TOOLS = [
