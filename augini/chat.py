@@ -6,6 +6,8 @@ import numpy as np
 from typing import List, Dict, Any, Optional
 from .exceptions import APIError
 from .utils import extract_json
+import ipywidgets as widgets
+from IPython.display import display, HTML, Markdown
 
 logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger(__name__)
@@ -20,8 +22,12 @@ class Chat:
         use_openrouter: bool = True,
         base_url: str = "https://openrouter.ai/api/v1",
         debug: bool = False,
-        enable_memory: bool = False
+        enable_memory: bool = False,
+        interactive: bool = False  
     ):
+        if not api_key:
+            raise APIError("API key is required. Please provide a valid API key.")
+        
         if use_openrouter:
             self.client = OpenAI(
                 base_url=base_url,
@@ -48,6 +54,11 @@ class Chat:
         # Add cache for smart data context
         self._data_context_cache = None
         self._data_hash = None
+
+        self.interactive = interactive
+        self._interactive_components = None
+        if interactive:
+            self._setup_interactive_interface()
 
         if enable_memory:
             self.conversation_history = []
@@ -80,6 +91,234 @@ class Chat:
                     "Memory features require additional dependencies. "
                     "Install them with: pip install augini[memory]"
                 )
+
+
+    def _setup_interactive_interface(self):
+        """Set up the interactive chat interface components"""
+        self._interactive_components = {
+            'text_input': widgets.Text(
+                placeholder='Type your question here...',
+                description='Query:',
+                layout=widgets.Layout(width='80%')
+            ),
+            'send_button': widgets.Button(
+                description='Send',
+                button_style='primary',
+                icon='paper-plane'
+            ),
+            'clear_button': widgets.Button(
+                description='Clear Chat',
+                button_style='warning',
+                icon='trash'
+            ),
+            'export_button': widgets.Button(
+                description='Export Chat',
+                button_style='info',
+                icon='download'
+            ),
+            'exit_button': widgets.Button(
+                description='Exit Chat',
+                button_style='danger',
+                icon='sign-out'
+            ),
+            'chat_output': widgets.Output(
+                layout=widgets.Layout(
+                    border='1px solid #ddd',
+                    padding='10px',
+                    margin='10px 0',
+                    max_height='400px',
+                    overflow_y='auto'
+                )
+            ),
+            'chat_history': []
+        }
+
+        # Create chat container
+        self._interactive_components['container'] = widgets.VBox([
+            widgets.HBox([
+                self._interactive_components['text_input'],
+                self._interactive_components['send_button']
+            ]),
+            widgets.HBox([
+                self._interactive_components['clear_button'],
+                self._interactive_components['export_button'],
+                self._interactive_components['exit_button']
+            ]),
+            self._interactive_components['chat_output']
+        ])
+
+        # Attach event handlers
+        self._interactive_components['send_button'].on_click(self._handle_send)
+        self._interactive_components['clear_button'].on_click(self._handle_clear)
+        self._interactive_components['export_button'].on_click(self._handle_export)
+        self._interactive_components['exit_button'].on_click(self._handle_exit)
+        self._interactive_components['text_input'].on_submit(self._handle_send)
+
+        # Display welcome message
+        with self._interactive_components['chat_output']:
+            display(HTML(
+                "<div style='color: #666; padding: 10px;'>"
+                "👋 Welcome to Interactive Chat! Ask me anything about your data."
+                "<br>Type your question and press Enter or click Send."
+                "<br>Click 'Clear Chat' to reset the conversation or 'Exit Chat' to end."
+                "</div>"
+            ))
+
+    def _format_message(self, content: str, is_user: bool = False) -> str:
+        """Format chat messages with appropriate styling"""
+        style = f"""
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            max-width: 80%;
+            {
+                "background-color: #e3f2fd; margin-left: auto;" 
+                if is_user else 
+                "background-color: #f5f5f5; margin-right: auto;"
+            }
+        """
+        return f"<div style='{style}'>{content}</div>"
+
+    def _add_to_history(self, role: str, content: str):
+        """Add a message to chat history with timestamp"""
+        if self.interactive:
+            self._interactive_components['chat_history'].append({
+                'timestamp': datetime.now().isoformat(),
+                'role': role,
+                'content': content
+            })
+
+    def _handle_send(self, _):
+        """Handle send button click or input submission in interactive mode"""
+        if not self.interactive:
+            return
+
+        query = self._interactive_components['text_input'].value.strip()
+        if not query:
+            return
+
+        # Clear input
+        self._interactive_components['text_input'].value = ''
+
+        # Display user message and add to history
+        with self._interactive_components['chat_output']:
+            display(HTML(self._format_message(f"<b>You:</b> {query}", is_user=True)))
+        self._add_to_history('user', query)
+
+        try:
+            # Get response using the existing chat functionality
+            response = self._get_chat_response(query)
+
+            # Display assistant message in markdown and add to history
+            with self._interactive_components['chat_output']:
+                display(HTML(self._format_message(f"<b>Augini:</b>")))
+                display(Markdown(response))  # Use Markdown display for the response
+            self._add_to_history('assistant', response)
+
+        except Exception as e:
+            error_msg = f"<span style='color: red'>Error: {str(e)}</span>"
+            with self._interactive_components['chat_output']:
+                display(HTML(self._format_message(error_msg)))
+            self._add_to_history('system', f"Error: {str(e)}")
+
+    def _handle_clear(self, _):
+        """Handle clear button click in interactive mode"""
+        if not self.interactive:
+            return
+
+        self._interactive_components['chat_history'] = []
+        self._interactive_components['chat_output'].clear_output()
+
+        # Display welcome message again
+        with self._interactive_components['chat_output']:
+            display(HTML(
+                "<div style='color: #666; padding: 10px;'>"
+                "Chat cleared! Ask me a new question about your data."
+                "</div>"
+            ))
+
+    def _handle_export(self, _):
+        """Handle export button click in interactive mode"""
+        if not self.interactive:
+            return
+
+        if not self._interactive_components['chat_history']:
+            with self._interactive_components['chat_output']:
+                display(HTML(
+                    "<div style='color: orange; padding: 10px;'>"
+                    "No chat history to export!"
+                    "</div>"
+                ))
+            return
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"chat_history_{timestamp}.md"
+
+        with open(filename, 'w') as f:
+            f.write("# Chat History\n\n")
+            for msg in self._interactive_components['chat_history']:
+                time = datetime.fromisoformat(msg['timestamp']).strftime("%Y-%m-%d %H:%M:%S")
+                role = msg['role'].title()
+                content = msg['content']
+                f.write(f"## {role} - {time}\n\n{content}\n\n---\n\n")
+
+        with self._interactive_components['chat_output']:
+            display(HTML(
+                f"<div style='color: green; padding: 10px;'>"
+                f"Chat history exported to {filename}"
+                f"</div>"
+            ))
+
+    def _handle_exit(self, _):
+        """Handle exit button click in interactive mode"""
+        if not self.interactive:
+            return
+
+        # Clear the chat output and close the widget
+        self._interactive_components['chat_output'].clear_output()
+        self._interactive_components['container'].close()
+
+        # Display exit message
+        with self._interactive_components['chat_output']:
+            display(HTML(
+                "<div style='color: #666; padding: 10px;'>"
+                "👋 Chat session ended. Thank you for using Interactive Chat!"
+                "</div>"
+            ))
+
+    def __call__(self, query: str) -> str:
+        """
+        Ask a question about the DataFrame.
+        
+        Args:
+            query (str): The question about the DataFrame
+            
+        Returns:
+            str: The response from the model
+        """
+        return self._get_chat_response(query)
+
+    def start_interactive(self):
+        """Start the interactive chat session"""
+        if not self.interactive:
+            raise RuntimeError("Interactive mode is not enabled. Initialize the class with interactive=True")
+        display(self._interactive_components['container'])
+
+    def get_chat_history(self, mode='full'):
+        """
+        Retrieve conversation history
+        
+        Args:
+            mode (str): 'full', 'summary', or 'interactive'
+        """
+        if mode == 'interactive' and self.interactive:
+            return self._interactive_components['chat_history']
+        elif mode == 'full':
+            return self.full_conversation_history
+        elif mode == 'summary':
+            return self.context_summaries
+        else:
+            raise ValueError("Mode must be 'full', 'summary', or 'interactive'")
 
     def _generate_context_summary(self, query: str, response: str) -> Dict[str, Any]:
         """Generate a contextual summary with embedding"""
