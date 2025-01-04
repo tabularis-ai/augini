@@ -3,6 +3,8 @@ import unittest
 import pandas as pd
 import warnings
 import asyncio
+import sys
+sys.path.append('../')
 import augini as au
 from augini.exceptions import APIError, DataProcessingError
 
