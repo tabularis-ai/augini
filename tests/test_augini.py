@@ -159,3 +159,23 @@ class TestChat:
         empty_history = chat_with_memory.get_conversation_history('full')
         assert len(empty_history) == 0
         print("Successfully cleared conversation history")
+
+
+    def test_code_execution(self, chat, caplog,test_df):
+        """Test code generation and execution functionality"""
+        query = "Calculate the sum of the ages in the dataset and return the result."
+        try:
+            response = chat(query)
+            assert isinstance(response, str)
+            assert len(response) > 0
+            # Check if the sum is correct
+            expected_sum = test_df['Age'].sum()
+            # Extract the sum from the response (assuming it's in the text)
+            # This part may vary depending on how the model returns the result
+            # For simplicity, assume the sum is directly mentioned in the response
+            if str(expected_sum) in response:
+                print(f"Code execution test passed. Sum: {expected_sum}")
+            else:
+                pytest.fail(f"Expected sum {expected_sum} not found in response: {response}")
+        except APIError as e:
+            pytest.fail(f"Code execution raised APIError unexpectedly: {str(e)}")

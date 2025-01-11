@@ -59,9 +59,16 @@ class Chat:
         self._data_hash = None
 
         self.interactive = interactive
-        self._interactive_components = None
-        if interactive:
-            self._setup_interactive_interface()
+        self._interactive_components = {
+            'text_input': None,
+            'send_button': None,
+            'clear_button': None,
+            'export_button': None,
+            'exit_button': None,
+            'chat_output': None,
+            'chat_history': [],
+            'container': None
+        }
 
         if enable_memory:
             self.conversation_history = []
@@ -102,53 +109,85 @@ class Chat:
             'text_input': widgets.Text(
                 placeholder='Type your question here...',
                 description='Query:',
-                layout=widgets.Layout(width='80%')
+                layout=widgets.Layout(width='90%')
             ),
             'send_button': widgets.Button(
                 description='Send',
                 button_style='primary',
-                icon='paper-plane'
+                icon='paper-plane',
+                layout=widgets.Layout(width='100px')
             ),
             'clear_button': widgets.Button(
                 description='Clear Chat',
                 button_style='warning',
-                icon='trash'
+                icon='trash',
+                layout=widgets.Layout(width='100px')
             ),
             'export_button': widgets.Button(
                 description='Export Chat',
                 button_style='info',
-                icon='download'
+                icon='download',
+                layout=widgets.Layout(width='100px')
             ),
             'exit_button': widgets.Button(
                 description='Exit Chat',
                 button_style='danger',
-                icon='sign-out'
+                icon='sign-out',
+                layout=widgets.Layout(width='100px')
             ),
             'chat_output': widgets.Output(
                 layout=widgets.Layout(
                     border='1px solid #ddd',
                     padding='10px',
-                    margin='10px 0',
-                    max_height='400px',
-                    overflow_y='auto'
+                    max_height='400px',  # Fixed height
+                    overflow_y='auto',   # Enable scrolling
+                    width='100%',        # Full width
+                    flex='1'             # Allow chat output to grow
                 )
             ),
             'chat_history': []
         }
 
-        # Create chat container
-        self._interactive_components['container'] = widgets.VBox([
-            self._interactive_components['chat_output'],
-            widgets.HBox([
-                self._interactive_components['text_input'],
-                self._interactive_components['send_button']
-            ]),
-            widgets.HBox([
-                self._interactive_components['clear_button'],
-                self._interactive_components['export_button'],
-                self._interactive_components['exit_button']
-            ]),
-        ])
+        # Create input container
+        input_container = widgets.HBox(
+            [self._interactive_components['text_input'], self._interactive_components['send_button']],
+            layout=widgets.Layout(
+                margin='10px 0',     # Add margin above and below
+                width='100%',        # Full width
+                align_items='flex-end'  # Align items to the bottom
+            )
+        )
+
+        # Create button panel
+        button_panel = widgets.HBox(
+            [self._interactive_components['clear_button'],
+            self._interactive_components['export_button'],
+            self._interactive_components['exit_button']],
+            layout=widgets.Layout(
+                margin='10px 0',     # Add margin above and below
+                width='100%',        # Full width
+                justify_content='flex-end'  # Align buttons to the right
+            )
+        )
+
+        # Create main container
+        main_container = widgets.VBox(
+            [self._interactive_components['chat_output'],
+            input_container,
+            button_panel],
+            layout=widgets.Layout(
+                border='1px solid #ccc',
+                padding='10px',
+                width='80%',         # Fixed width
+                margin='0 auto',     # Center the container
+                display='flex',      # Use flexbox layout
+                flex_direction='column',  # Stack children vertically
+                justify_content='space-between'  # Space between chat and input
+            )
+        )
+
+        # Assign to self._interactive_components
+        self._interactive_components['container'] = main_container
 
         # Attach event handlers
         self._interactive_components['send_button'].on_click(self._handle_send)
@@ -156,6 +195,9 @@ class Chat:
         self._interactive_components['export_button'].on_click(self._handle_export)
         self._interactive_components['exit_button'].on_click(self._handle_exit)
         self._interactive_components['text_input'].on_submit(self._handle_send)
+
+        # Display the container
+        display(main_container)
 
         # Display welcome message
         with self._interactive_components['chat_output']:
@@ -174,11 +216,11 @@ class Chat:
             margin: 5px;
             border-radius: 10px;
             max-width: 80%;
-            {
+            {{
                 "background-color: #e3f2fd; margin-left: auto;" 
                 if is_user else 
                 "background-color: #f5f5f5; margin-right: auto;"
-            }
+            }}
         """
         return f"<div style='{style}'>{content}</div>"
 
@@ -214,8 +256,7 @@ class Chat:
 
             # Display assistant message in markdown and add to history
             with self._interactive_components['chat_output']:
-                display(HTML(self._format_message(f"<b>Augini:</b>")))
-                display(Markdown(response))  # Use Markdown display for the response
+                display(HTML(self._format_message(f"<b>Augini:</b> {response}")))  # Encapsulate response within Augini
             self._add_to_history('assistant', response)
 
         except Exception as e:
@@ -305,7 +346,10 @@ class Chat:
         """Start the interactive chat session"""
         if not self.interactive:
             raise RuntimeError("Interactive mode is not enabled. Initialize the class with interactive=True")
-        display(self._interactive_components['container'])
+        
+        # Set up and display the interface
+        self._setup_interactive_interface()
+
 
     def get_chat_history(self, mode='full'):
         """
@@ -557,9 +601,11 @@ class Chat:
                 "   - Consider both statistical and qualitative indicators\n"
                 "   - Note any limitations or uncertainties\n"
                 "   - Use data patterns to inform conclusions\n\n"
+                "   - Data Analysis and code execution tools are available to assist you\n\n"
+                "   - If you use the execute code tool show the code you used as evidence\n\n"
                 
                 "Example of correctly formatted response:\n"
-                '{\"answer\": \"## Analysis Results 🔍\\n\\n**Key Finding:** The data shows interesting patterns\\n\\n### Details\\n- The `column_name` shows X\\n- Statistics indicate Y\\n\\n> Evidence: Z\"}'
+               '{"answer": "<h2>Analysis Results 🔍</h2><p><strong>Key Finding:</strong> The data shows interesting patterns</p><h3>Details</h3><ul><li>The <code>column_name</code> shows X</li><li>Statistics indicate Y</li></ul><blockquote>Evidence: Z</blockquote>"}'
                 
                 + (f"\n\nPrevious Conversation Context:\n{context_text}" if context_text else "")
             )
@@ -584,6 +630,15 @@ class Chat:
                     function_name = tool_call.function.name
                     function_args = json.loads(tool_call.function.arguments)
                     
+                    if function_name == "execute_code":
+                        code = function_args.get("code", "")
+                        result = self.tools.execute_code(code)
+                        tool_results.append({
+                            "tool": function_name,
+                            "args": function_args,
+                            "result": result
+                        })
+                        
                     # Call the appropriate method from DataAnalysisTools
                     if hasattr(self.tools, function_name):
                         result = getattr(self.tools, function_name)(**function_args)
@@ -603,7 +658,7 @@ class Chat:
                 final_messages.append({
                     "role": "assistant",
                     "content": f"Tool results:\n{json.dumps(tool_results, indent=2)}"
-                })
+            })
 
             final_response = self.client.chat.completions.create(
                 model=self.model_name,

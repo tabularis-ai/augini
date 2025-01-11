@@ -336,6 +336,52 @@ class DataAnalysisTools:
         }
 
         return self.convert_to_json_serializable(result)
+    
+
+    def execute_code(self, code: str) -> str:
+        import subprocess
+        import tempfile
+        import pandas as pd
+
+        # Save the dataframe to a temporary CSV file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as temp_df_file:
+            self.df.to_csv(temp_df_file.name, index=False)
+            temp_df_path = temp_df_file.name
+
+        # Prepare the execution script
+        execution_script = f'''
+        import pandas as pd
+
+        # Load the dataframe
+        df = pd.read_csv('{temp_df_path}')
+
+        # Execute the user code
+        {code}
+
+        # If there's a result to return, it should be in a variable named 'result'
+        try:
+            print(result)
+        except NameError:
+            pass
+        '''
+
+        # Write the execution script to a temporary file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_code_file:
+            temp_code_file.write(execution_script)
+            temp_code_path = temp_code_file.name
+
+        # Execute the script and capture output
+        try:
+            output = subprocess.check_output(['python', temp_code_path], stderr=subprocess.STDOUT, text=True)
+        except subprocess.CalledProcessError as e:
+            output = f"An error occurred: {e.output}"
+        finally:
+            # Remove temporary files
+            import os
+            os.remove(temp_df_path)
+            os.remove(temp_code_path)
+
+        return output.strip()
 
 # Function definitions for tool calling
 AVAILABLE_TOOLS = [
@@ -490,6 +536,23 @@ AVAILABLE_TOOLS = [
                     }
                 },
                 "required": ["columns"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "execute_code",
+            "description": "Execute Python code using the dataframe. Use this for custom analysis or visualizations. Make sure your code always returns an output",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Python code to execute"
+                    }
+                },
+                "required": ["code"]
             }
         }
     }
