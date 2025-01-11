@@ -138,6 +138,7 @@ class Chat:
 
         # Create chat container
         self._interactive_components['container'] = widgets.VBox([
+            self._interactive_components['chat_output'],
             widgets.HBox([
                 self._interactive_components['text_input'],
                 self._interactive_components['send_button']
@@ -147,7 +148,6 @@ class Chat:
                 self._interactive_components['export_button'],
                 self._interactive_components['exit_button']
             ]),
-            self._interactive_components['chat_output']
         ])
 
         # Attach event handlers
