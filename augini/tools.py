@@ -339,49 +339,69 @@ class DataAnalysisTools:
     
 
     def execute_code(self, code: str) -> str:
+        """
+        Execute the provided code and return the output
+        
+        Args:
+            code (str): The Python code to execute
+            
+        Returns:
+            str: The text output from the executed code
+        """
         import subprocess
         import tempfile
         import pandas as pd
+        import textwrap
+        import os
+        
+        # Create a temporary directory for all files
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Save the dataframe to a temporary CSV file
+            df_path = os.path.join(temp_dir, 'data.csv')
+            self.df.to_csv(df_path, index=False)
+            
+            # Prepare the execution script with proper indentation
+            execution_script = textwrap.dedent(f'''
+                import pandas as pd
+                import numpy as np
+                from IPython.display import display
+                
+                # Load the dataframe
+                df = pd.read_csv('{df_path}')
+                
+                # Initialize result variable
+                result = None
+                
+                # Execute the user code
+                {textwrap.dedent(code)}
+                
+                # Print the result if it exists
+                if result is not None:
+                    if isinstance(result, (pd.DataFrame, pd.Series)):
+                        print(result.to_string())
+                    else:
+                        print(result)
+            ''').strip()
+            
+            # Write the execution script to a temporary file
+            script_path = os.path.join(temp_dir, 'script.py')
+            with open(script_path, 'w') as f:
+                f.write(execution_script)
+            
+            # Execute the script and capture output
+            try:
+                output = subprocess.check_output(
+                    ['python', script_path],
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    cwd=temp_dir  # Set working directory to temp_dir
+                )
+                
+                return output.strip()
+                
+            except subprocess.CalledProcessError as e:
+                return f"An error occurred:\n{e.output}"
 
-        # Save the dataframe to a temporary CSV file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as temp_df_file:
-            self.df.to_csv(temp_df_file.name, index=False)
-            temp_df_path = temp_df_file.name
-
-        # Prepare the execution script
-        execution_script = f'''
-        import pandas as pd
-
-        # Load the dataframe
-        df = pd.read_csv('{temp_df_path}')
-
-        # Execute the user code
-        {code}
-
-        # If there's a result to return, it should be in a variable named 'result'
-        try:
-            print(result)
-        except NameError:
-            pass
-        '''
-
-        # Write the execution script to a temporary file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_code_file:
-            temp_code_file.write(execution_script)
-            temp_code_path = temp_code_file.name
-
-        # Execute the script and capture output
-        try:
-            output = subprocess.check_output(['python', temp_code_path], stderr=subprocess.STDOUT, text=True)
-        except subprocess.CalledProcessError as e:
-            output = f"An error occurred: {e.output}"
-        finally:
-            # Remove temporary files
-            import os
-            os.remove(temp_df_path)
-            os.remove(temp_code_path)
-
-        return output.strip()
 
 # Function definitions for tool calling
 AVAILABLE_TOOLS = [
@@ -543,7 +563,7 @@ AVAILABLE_TOOLS = [
         "type": "function",
         "function": {
             "name": "execute_code",
-            "description": "Execute Python code using the dataframe. Use this for custom analysis or visualizations. Make sure your code always returns an output",
+            "description": "Write and execute Python code using the dataframe. Use this whenever you don't have another tool that solves the user's demands.The written value to be returned be stored in a 'result' variable no need to return it as that will be handled.",
             "parameters": {
                 "type": "object",
                 "properties": {

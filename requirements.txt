@@ -6,6 +6,7 @@ nest_asyncio
 pydantic
 scikit-learn==1.6.0
 seaborn
+markdown
 
 # Optional dependencies for memory/NLP features
 sentence-transformers>=2.2.0; extra == 'memory'

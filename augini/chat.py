@@ -5,6 +5,7 @@ from openai import OpenAI
 import pandas as pd
 import numpy as np
 from typing import List, Dict, Any, Optional
+import markdown
 
 from augini.tools import AVAILABLE_TOOLS, DataAnalysisTools
 from .exceptions import APIError
@@ -105,6 +106,17 @@ class Chat:
 
     def _setup_interactive_interface(self):
         """Set up the interactive chat interface components"""
+
+         # Add a loading widget
+        self._interactive_components['loading'] = widgets.HTML(
+            value="<div style='text-align: center; margin: 20px;'>"
+                "<i class='fa fa-spinner fa-spin' style='font-size: 24px; color: #4a90e2;'></i>"
+                "<div style='margin-top: 10px; color: #666;'>Loading...</div>"
+                "</div>"
+        )
+
+        self._interactive_components['loading'].layout.visibility = 'hidden'  # Hide by default
+        
         self._interactive_components = {
             'text_input': widgets.Text(
                 placeholder='Type your question here...',
@@ -139,54 +151,59 @@ class Chat:
                 layout=widgets.Layout(
                     border='1px solid #ddd',
                     padding='10px',
-                    max_height='400px',  # Fixed height
-                    overflow_y='auto',   # Enable scrolling
-                    width='100%',        # Full width
-                    flex='1'             # Allow chat output to grow
+                    height='500px',
+                    overflow_y='auto',
+                    width='100%',
+                    margin='10px 0'
                 )
+            ),
+            'loading': widgets.HTML(
+                value="<div style='text-align: center; margin: 20px;'>"
+                    "<i class='fa fa-spinner fa-spin' style='font-size: 24px; color: #4a90e2;'></i>"
+                    "<div style='margin-top: 10px; color: #666;'>Loading...</div>"
+                    "</div>",
+                layout=widgets.Layout(visibility='hidden')  # Hide by default
             ),
             'chat_history': []
         }
 
-        # Create input container
+        # Create input container at top
         input_container = widgets.HBox(
-            [self._interactive_components['text_input'], self._interactive_components['send_button']],
+            [self._interactive_components['text_input'], 
+            self._interactive_components['send_button']],
             layout=widgets.Layout(
-                margin='10px 0',     # Add margin above and below
-                width='100%',        # Full width
-                align_items='flex-end'  # Align items to the bottom
+                width='100%',
+                align_items='center',
+                margin='10px 0'
             )
         )
 
-        # Create button panel
+        # Create button panel below input
         button_panel = widgets.HBox(
             [self._interactive_components['clear_button'],
             self._interactive_components['export_button'],
             self._interactive_components['exit_button']],
             layout=widgets.Layout(
-                margin='10px 0',     # Add margin above and below
-                width='100%',        # Full width
-                justify_content='flex-end'  # Align buttons to the right
+                width='100%',
+                justify_content='flex-end',
+                margin='10px 0'
             )
         )
 
-        # Create main container
+        # Create main container with top-down layout
         main_container = widgets.VBox(
-            [self._interactive_components['chat_output'],
-            input_container,
-            button_panel],
+            [input_container,
+            button_panel,
+            self._interactive_components['loading'],
+            self._interactive_components['chat_output']],
             layout=widgets.Layout(
                 border='1px solid #ccc',
                 padding='10px',
-                width='80%',         # Fixed width
-                margin='0 auto',     # Center the container
-                display='flex',      # Use flexbox layout
-                flex_direction='column',  # Stack children vertically
-                justify_content='space-between'  # Space between chat and input
+                width='80%',
+                margin='0 auto'
             )
         )
 
-        # Assign to self._interactive_components
         self._interactive_components['container'] = main_container
 
         # Attach event handlers
@@ -202,27 +219,57 @@ class Chat:
         # Display welcome message
         with self._interactive_components['chat_output']:
             display(HTML(
-                "<div style='color: #666; padding: 10px;'>"
+                "<div style='color: #666; padding: 10px; text-align: center;'>"
                 "👋 Welcome to Interactive Chat! Ask me anything about your data."
                 "<br>Type your question and press Enter or click Send."
                 "<br>Click 'Clear Chat' to reset the conversation or 'Exit Chat' to end."
                 "</div>"
             ))
-
+            
     def _format_message(self, content: str, is_user: bool = False) -> str:
-        """Format chat messages with appropriate styling"""
-        style = f"""
-            padding: 10px;
-            margin: 5px;
-            border-radius: 10px;
-            max-width: 80%;
-            {{
-                "background-color: #e3f2fd; margin-left: auto;" 
-                if is_user else 
-                "background-color: #f5f5f5; margin-right: auto;"
-            }}
+        """Format chat messages with improved styling and markdown support.
+        
+        Args:
+            content (str): The message content (HTML from the model or plain text from the user).
+            is_user (bool): Whether the message is from the user.
+        
+        Returns:
+            str: Formatted message as HTML for display.
         """
-        return f"<div style='{style}'>{content}</div>"
+        # Convert markdown to HTML for non-user messages (model responses)
+        if not is_user:
+            html_content = markdown.markdown(content)
+            content = html_content
+
+        # Define message container style
+        container_style = f"""
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 12px;
+            max-width: 70%;
+            word-wrap: break-word;
+            {"margin-left: auto; background-color: #e3f2fd;" if is_user else "margin-right: auto; background-color: #f5f5f5;"}
+        """
+        
+        # Define message layout
+        if is_user:
+            return f"""
+                <div style='display: flex; justify-content: flex-end; margin: 10px 0;'>
+                    <div style='{container_style}'>
+                        <div style='font-weight: bold; margin-bottom: 5px;'>You:</div>
+                        <div>{content}</div>
+                    </div>
+                </div>
+            """
+        else:
+            return f"""
+                <div style='display: flex; justify-content: flex-start; margin: 10px 0;'>
+                    <div style='{container_style}'>
+                        <div style='font-weight: bold; margin-bottom: 5px;'>Augini:</div>
+                        <div>{content}</div>
+                    </div>
+                </div>
+            """
 
     def _add_to_history(self, role: str, content: str):
         """Add a message to chat history with timestamp"""
@@ -247,23 +294,32 @@ class Chat:
 
         # Display user message and add to history
         with self._interactive_components['chat_output']:
-            display(HTML(self._format_message(f"<b>You:</b> {query}", is_user=True)))
+            display(HTML(self._format_message(query, is_user=True)))
         self._add_to_history('user', query)
+
+        # Show loading indicator
+        self._interactive_components['loading'].layout.visibility = 'visible'
 
         try:
             # Get response using the existing chat functionality
             response = self._get_chat_response(query)
 
-            # Display assistant message in markdown and add to history
+            # Display assistant message with markdown support
             with self._interactive_components['chat_output']:
-                display(HTML(self._format_message(f"<b>Augini:</b> {response}")))  # Encapsulate response within Augini
+                display(HTML(self._format_message(response)))
             self._add_to_history('assistant', response)
 
+
         except Exception as e:
-            error_msg = f"<span style='color: red'>Error: {str(e)}</span>"
+            error_msg = f"**Error:** {str(e)}"
             with self._interactive_components['chat_output']:
                 display(HTML(self._format_message(error_msg)))
             self._add_to_history('system', f"Error: {str(e)}")
+
+        finally:
+            # Hide loading indicator
+            self._interactive_components['loading'].layout.visibility = 'hidden'
+
 
     def _handle_clear(self, _):
         """Handle clear button click in interactive mode"""
@@ -530,6 +586,31 @@ class Chat:
         self._data_hash = current_hash
         
         return context
+    
+
+    def _format_tool_results(self, tool_results: List[Dict]) -> str:
+        """Format tool results for inclusion in the response"""
+        formatted_results = []
+        
+        for result in tool_results:
+            # Format code execution results
+            if result["tool"] == "execute_code":
+                formatted_result = f"```python\n{result['args']['code']}\n```\n\n"
+                
+                # Add output if present
+                if result.get("result"):
+                    formatted_result += f"**Output:**\n```\n{result['result']}\n```\n\n"
+                
+                formatted_results.append(formatted_result)
+            else:
+                # Format other tool results
+                formatted_results.append(
+                    f"**{result['tool']} Results:**\n```\n{result['result']}\n```\n"
+                )
+        
+        return "\n".join(formatted_results)
+                
+
 
     def _get_chat_response(self, query: str) -> str:
         try:
@@ -584,9 +665,22 @@ class Chat:
 
             system_content = (
                 "You are an expert data analyst assistant specialized in tabular data analysis. "
-                "Your response must be a valid, complete JSON object with a single 'answer' key containing markdown-formatted text. "
-                "Make sure to properly close all JSON brackets and escape special characters.\n\n"
-                "If the question is not clear, ask for clarification. IMPORTANT: If the question is not related to the data, ask for a different question.\n\n"
+                "Your response must be a valid, complete JSON object with a single 'answer' key "
+                "containing a markdown fragment. The markdown should be well-formatted and use "
+                "appropriate markdown syntax such as headings (#, ##), lists (-, *), code blocks (```), "
+                "and inline code (`) for clarity and readability. Do not include HTML tags—only markdown "
+                "content is needed. Ensure that all special characters in the JSON string are properly escaped.\n\n"
+                "If the question is not clear, ask for clarification. IMPORTANT: If the question is not "
+                "related to the data, ask for a different question.\n\n"
+
+                "MARKDOWN STYLING GUIDELINES:\n"
+                "- Use `# Heading` for main headings\n"
+                "- Use `## Subheading` for subheadings\n"
+                "- Use `-` or `*` for lists\n"
+                "- Use `**bold**` for emphasis\n"
+                "- Use `*italic*` for subtle emphasis\n"
+                "- Use ``` for code blocks\n"
+                "- Use `inline code` for code snippets\n\n"
                 
                 "ANALYSIS SCOPE:\n"
                 "   - Answer questions about data characteristics, patterns, and quality\n"
@@ -594,6 +688,7 @@ class Chat:
                 "   - Assess data authenticity and potential synthetic patterns\n"
                 "   - Consider data collection and generation methods\n"
                 "   - Evaluate data consistency and realism\n\n"
+                "   - Write safe pandas code to handle analysis and plots otherwise\n\n"
                 
                 "RESPONSE APPROACH:\n"
                 "   - Start with direct answers to the specific question\n"
@@ -602,13 +697,23 @@ class Chat:
                 "   - Note any limitations or uncertainties\n"
                 "   - Use data patterns to inform conclusions\n\n"
                 "   - Data Analysis and code execution tools are available to assist you\n\n"
-                "   - If you use the execute code tool show the code you used as evidence\n\n"
+                "   - If you use the 'execute_code' tool, show the code you used as evidence and always store the final result of the code in a variable 'result'. Returning these variables will be handled for you will be handled for you\n\n"
+                "   - Any code written should be restricted to data analysis use cases. Avoid code that might be insecure or lead to side effects\n\n"
                 
                 "Example of correctly formatted response:\n"
-               '{"answer": "<h2>Analysis Results 🔍</h2><p><strong>Key Finding:</strong> The data shows interesting patterns</p><h3>Details</h3><ul><li>The <code>column_name</code> shows X</li><li>Statistics indicate Y</li></ul><blockquote>Evidence: Z</blockquote>"}'
-                
+                '{"answer": "# Analysis Results 🔍\\n\\n'
+                '**Key Finding:** The data shows interesting patterns\\n\\n'
+                '## Details\\n\\n'
+                '- The `column_name` shows X\\n'
+                '- Statistics indicate Y\\n\\n'
+                '``` Evidence: Z```"}'
+
+                "Example of code execution tool usage:\n"
+                'result = df["Age"].sum()\n'
+
                 + (f"\n\nPrevious Conversation Context:\n{context_text}" if context_text else "")
             )
+
 
             # First, get the model to choose appropriate tools
             tool_selection_response = self.client.chat.completions.create(
@@ -622,7 +727,6 @@ class Chat:
                 temperature=self.temperature
             )
 
-            # Process tool calls and gather results
             tool_results = []
             
             if tool_selection_response.choices[0].message.tool_calls:
@@ -632,15 +736,20 @@ class Chat:
                     
                     if function_name == "execute_code":
                         code = function_args.get("code", "")
-                        result = self.tools.execute_code(code)
-                        tool_results.append({
+                        result = self.tools.execute_code(code) 
+                        
+                        print("Code Execution Result:", result)
+                        
+                        tool_result = {
                             "tool": function_name,
                             "args": function_args,
                             "result": result
-                        })
+                        }
                         
-                    # Call the appropriate method from DataAnalysisTools
-                    if hasattr(self.tools, function_name):
+                        tool_results.append(tool_result)
+                    
+                    # Handle other tools
+                    elif hasattr(self.tools, function_name):
                         result = getattr(self.tools, function_name)(**function_args)
                         tool_results.append({
                             "tool": function_name,
@@ -655,10 +764,12 @@ class Chat:
             ]
 
             if tool_results:
+                # Format tool results for better readability
+                formatted_results = self._format_tool_results(tool_results)
                 final_messages.append({
                     "role": "assistant",
-                    "content": f"Tool results:\n{json.dumps(tool_results, indent=2)}"
-            })
+                    "content": f"Analysis Results:\n\n{formatted_results}"
+                })
 
             final_response = self.client.chat.completions.create(
                 model=self.model_name,
