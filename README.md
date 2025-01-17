@@ -21,7 +21,11 @@ from augini import Augini
 import pandas as pd
 
 # Initialize with your preferred model
-augini = Augini(api_key="your-api-key", model="gpt-4o-mini")
+augini = Augini(
+    api_key="your-api-key", # Bring Your Own Key (BYOK)
+    model="gpt-4o-mini", 
+    use_openrouter=True, # use openrouter api if False then use openai api
+    )
 
 # Load your data (CSV, Excel, or any pandas-supported format)
 df = pd.read_csv("your_data.csv")  # or pd.read_excel("your_data.xlsx")
