@@ -167,3 +167,5 @@ augmenter = au.Augment(
 
 For enterprise deployments, local installations, or custom solutions, contact us:
 - Email: info@tabularis.ai
+
+[<img src="https://raw.githubusercontent.com/unslothai/unsloth/main/images/Discord%20button.png" width="200"/>](https://discord.gg/sznxwdqBXj)
