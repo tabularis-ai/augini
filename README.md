@@ -28,7 +28,7 @@ chat = au.Chat(
     df=df,
     api_key="your-api-key",
     model="gpt-4o-mini",
-    enable_memory=True  # Enable conversation memory
+    use_openrouter=True, # use openrouter api if False then use openai api
 )
 
 # Start chatting with your data - properly display markdown responses

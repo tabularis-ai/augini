@@ -39,6 +39,9 @@ gradio_app
 env/
 venv/
 
+# mylocaltests
+my_local_tests/
+
 # OS generated files
 .DS_Store
 .DS_Store?
