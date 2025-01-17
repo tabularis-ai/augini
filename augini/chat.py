@@ -174,7 +174,9 @@ class Chat:
             layout=widgets.Layout(
                 width='100%',
                 align_items='center',
-                margin='10px 0'
+                margin='10px 0',
+                position='fixed',
+                bottom='0'
             )
         )
 
@@ -186,21 +188,37 @@ class Chat:
             layout=widgets.Layout(
                 width='100%',
                 justify_content='flex-end',
-                margin='10px 0'
+                margin='10px 0',
+                position='fixed',
+                bottom='50px'
+            )
+        )
+
+        # Create chat output with margin for fixed input
+        self._interactive_components['chat_output'] = widgets.Output(
+            layout=widgets.Layout(
+                border='1px solid #ddd',
+                padding='10px',
+                height='500px',
+                overflow_y='auto',
+                width='100%',
+                margin='10px 0 100px 0'  # Added bottom margin to prevent overlap with fixed input
             )
         )
 
         # Create main container with top-down layout
         main_container = widgets.VBox(
-            [input_container,
+            [self._interactive_components['loading'],
+            self._interactive_components['chat_output'],
             button_panel,
-            self._interactive_components['loading'],
-            self._interactive_components['chat_output']],
+            input_container],
             layout=widgets.Layout(
                 border='1px solid #ccc',
                 padding='10px',
                 width='80%',
-                margin='0 auto'
+                margin='0 auto',
+                position='relative',
+                min_height='600px'
             )
         )
 
