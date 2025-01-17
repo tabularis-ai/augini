@@ -26,8 +26,8 @@ df = pd.read_csv("your_data.csv")  # or pd.read_excel("your_data.xlsx")
 # Initialize the chat interface
 chat = au.Chat(
     df=df,
-    api_key="your-api-key",
-    model="gpt-4o-mini",
+    api_key="your-api-key", # Bring Your Own Key (BYOK)
+    model="gpt-4o-mini", 
     use_openrouter=True, # use openrouter api if False then use openai api
 )
 
