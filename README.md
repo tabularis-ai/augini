@@ -40,10 +40,6 @@ display(Markdown(response))
 # Ask follow-up questions with context awareness
 response = chat("Can you analyze the correlation between age and income?")
 display(Markdown(response))
-
-# Access conversation history
-full_history = chat.get_conversation_history('full')
-summary_history = chat.get_conversation_history('summary')
 ```
 
 ### 🔄 Intelligent Data Augmentation
