@@ -36,11 +36,12 @@ class ChatComponents:
         output = widgets.Output(
             layout=widgets.Layout(
                 width='100%',
-                height='500px',  # Increased height for better visibility
-                overflow_y='scroll',  # Changed to scroll to ensure scrollbar is always visible
+                height='500px',
+                overflow_y='scroll',
                 padding='15px',
-                margin='0 0 60px 0',  # Added bottom margin for spacing
-                flex='1 1 auto'
+                margin='0 0 60px 0',
+                flex='1 1 auto',
+                position='relative'
             )
         )
         return output
@@ -219,12 +220,18 @@ class ChatComponents:
     def scroll_to_bottom(self):
         """Scroll the chat output to the bottom."""
         script = """
-            setTimeout(function() {
-                var output = document.querySelector('.jp-OutputArea-output');
-                if (output) {
-                    output.scrollTop = output.scrollHeight;
+            function scrollToBottom() {
+                var outputs = document.querySelectorAll('.jp-OutputArea-output');
+                if (outputs.length > 0) {
+                    var lastOutput = outputs[outputs.length - 1];
+                    lastOutput.scrollIntoView({ behavior: 'smooth', block: 'end' });
                 }
-            }, 100);
+            }
+            
+            // Try multiple times to ensure it works after content is rendered
+            setTimeout(scrollToBottom, 100);
+            setTimeout(scrollToBottom, 300);
+            setTimeout(scrollToBottom, 500);
         """
         display(Javascript(script))
 
