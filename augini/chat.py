@@ -10,6 +10,7 @@ import markdown
 from augini.tools import AVAILABLE_TOOLS, DataAnalysisTools
 from .exceptions import APIError
 from .utils import extract_json
+from .web_components import ChatComponents
 import ipywidgets as widgets
 from IPython.display import display, HTML, Markdown
 
@@ -104,190 +105,10 @@ class Chat:
                 )
 
 
-    def _setup_interactive_interface(self):
-        """Set up the interactive chat interface components"""
-
-         # Add a loading widget
-        self._interactive_components['loading'] = widgets.HTML(
-            value="<div style='text-align: center; margin: 20px;'>"
-                "<i class='fa fa-spinner fa-spin' style='font-size: 24px; color: #4a90e2;'></i>"
-                "<div style='margin-top: 10px; color: #666;'>Loading...</div>"
-                "</div>"
-        )
-
-        self._interactive_components['loading'].layout.visibility = 'hidden'  # Hide by default
-        
-        self._interactive_components = {
-            'text_input': widgets.Text(
-                placeholder='Type your question here...',
-                description='Query:',
-                layout=widgets.Layout(width='90%')
-            ),
-            'send_button': widgets.Button(
-                description='Send',
-                button_style='primary',
-                icon='paper-plane',
-                layout=widgets.Layout(width='100px')
-            ),
-            'clear_button': widgets.Button(
-                description='Clear Chat',
-                button_style='warning',
-                icon='trash',
-                layout=widgets.Layout(width='100px')
-            ),
-            'export_button': widgets.Button(
-                description='Export Chat',
-                button_style='info',
-                icon='download',
-                layout=widgets.Layout(width='100px')
-            ),
-            'exit_button': widgets.Button(
-                description='Exit Chat',
-                button_style='danger',
-                icon='sign-out',
-                layout=widgets.Layout(width='100px')
-            ),
-            'chat_output': widgets.Output(
-                layout=widgets.Layout(
-                    border='1px solid #ddd',
-                    padding='10px',
-                    height='500px',
-                    overflow_y='auto',
-                    width='100%',
-                    margin='10px 0'
-                )
-            ),
-            'loading': widgets.HTML(
-                value="<div style='text-align: center; margin: 20px;'>"
-                    "<i class='fa fa-spinner fa-spin' style='font-size: 24px; color: #4a90e2;'></i>"
-                    "<div style='margin-top: 10px; color: #666;'>Loading...</div>"
-                    "</div>",
-                layout=widgets.Layout(visibility='hidden')  # Hide by default
-            ),
-            'chat_history': []
-        }
-
-        # Create input container at top
-        input_container = widgets.HBox(
-            [self._interactive_components['text_input'], 
-            self._interactive_components['send_button']],
-            layout=widgets.Layout(
-                width='100%',
-                align_items='center',
-                margin='10px 0',
-                position='fixed',
-                bottom='0'
-            )
-        )
-
-        # Create button panel below input
-        button_panel = widgets.HBox(
-            [self._interactive_components['clear_button'],
-            self._interactive_components['export_button'],
-            self._interactive_components['exit_button']],
-            layout=widgets.Layout(
-                width='100%',
-                justify_content='flex-end',
-                margin='10px 0',
-                position='fixed',
-                bottom='50px'
-            )
-        )
-
-        # Create chat output with margin for fixed input
-        self._interactive_components['chat_output'] = widgets.Output(
-            layout=widgets.Layout(
-                border='1px solid #ddd',
-                padding='10px',
-                height='500px',
-                overflow_y='auto',
-                width='100%',
-                margin='10px 0 100px 0'  # Added bottom margin to prevent overlap with fixed input
-            )
-        )
-
-        # Create main container with top-down layout
-        main_container = widgets.VBox(
-            [self._interactive_components['loading'],
-            self._interactive_components['chat_output'],
-            button_panel,
-            input_container],
-            layout=widgets.Layout(
-                border='1px solid #ccc',
-                padding='10px',
-                width='80%',
-                margin='0 auto',
-                position='relative',
-                min_height='600px'
-            )
-        )
-
-        self._interactive_components['container'] = main_container
-
-        # Attach event handlers
-        self._interactive_components['send_button'].on_click(self._handle_send)
-        self._interactive_components['clear_button'].on_click(self._handle_clear)
-        self._interactive_components['export_button'].on_click(self._handle_export)
-        self._interactive_components['exit_button'].on_click(self._handle_exit)
-        self._interactive_components['text_input'].on_submit(self._handle_send)
-
-        # Display the container
-        display(main_container)
-
-        # Display welcome message
-        with self._interactive_components['chat_output']:
-            display(HTML(
-                "<div style='color: #666; padding: 10px; text-align: center;'>"
-                "👋 Welcome to Interactive Chat! Ask me anything about your data."
-                "<br>Type your question and press Enter or click Send."
-                "<br>Click 'Clear Chat' to reset the conversation or 'Exit Chat' to end."
-                "</div>"
-            ))
-            
     def _format_message(self, content: str, is_user: bool = False) -> str:
-        """Format chat messages with improved styling and markdown support.
-        
-        Args:
-            content (str): The message content (HTML from the model or plain text from the user).
-            is_user (bool): Whether the message is from the user.
-        
-        Returns:
-            str: Formatted message as HTML for display.
-        """
-        # Convert markdown to HTML for non-user messages (model responses)
-        if not is_user:
-            html_content = markdown.markdown(content)
-            content = html_content
-
-        # Define message container style
-        container_style = f"""
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 12px;
-            max-width: 70%;
-            word-wrap: break-word;
-            {"margin-left: auto; background-color: #e3f2fd;" if is_user else "margin-right: auto; background-color: #f5f5f5;"}
-        """
-        
-        # Define message layout
-        if is_user:
-            return f"""
-                <div style='display: flex; justify-content: flex-end; margin: 10px 0;'>
-                    <div style='{container_style}'>
-                        <div style='font-weight: bold; margin-bottom: 5px;'>You:</div>
-                        <div>{content}</div>
-                    </div>
-                </div>
-            """
-        else:
-            return f"""
-                <div style='display: flex; justify-content: flex-start; margin: 10px 0;'>
-                    <div style='{container_style}'>
-                        <div style='font-weight: bold; margin-bottom: 5px;'>Augini:</div>
-                        <div>{content}</div>
-                    </div>
-                </div>
-            """
+        """Format chat messages with improved styling and markdown support."""
+        from .web_components import ChatComponents
+        return ChatComponents().format_message(content, is_user)
 
     def _add_to_history(self, role: str, content: str):
         """Add a message to chat history with timestamp"""
@@ -298,11 +119,8 @@ class Chat:
                 'content': content
             })
 
-    def _handle_send(self, _):
-        """Handle send button click or input submission in interactive mode"""
-        if not self.interactive:
-            return
-
+    def _handle_send(self, _=None):
+        """Handle send button click or input submission."""
         query = self._interactive_components['text_input'].value.strip()
         if not query:
             return
@@ -310,50 +128,30 @@ class Chat:
         # Clear input
         self._interactive_components['text_input'].value = ''
 
-        # Display user message and add to history
+        # Display user message
         with self._interactive_components['chat_output']:
-            display(HTML(self._format_message(query, is_user=True)))
-        self._add_to_history('user', query)
+            display(HTML(self._web_components.format_message(query, is_user=True)))
 
         # Show loading indicator
         self._interactive_components['loading'].layout.visibility = 'visible'
 
         try:
-            # Get response using the existing chat functionality
+            # Get response using the correct method
             response = self._get_chat_response(query)
 
-            # Display assistant message with markdown support
+            # Display assistant message
             with self._interactive_components['chat_output']:
-                display(HTML(self._format_message(response)))
-            self._add_to_history('assistant', response)
-
-
-        except Exception as e:
-            error_msg = f"**Error:** {str(e)}"
-            with self._interactive_components['chat_output']:
-                display(HTML(self._format_message(error_msg)))
-            self._add_to_history('system', f"Error: {str(e)}")
-
+                display(HTML(self._web_components.format_message(response)))
         finally:
             # Hide loading indicator
             self._interactive_components['loading'].layout.visibility = 'hidden'
-
+            # Scroll to bottom
+            self._web_components.scroll_to_bottom()
 
     def _handle_clear(self, _):
-        """Handle clear button click in interactive mode"""
-        if not self.interactive:
-            return
-
-        self._interactive_components['chat_history'] = []
+        """Handle clear button click."""
         self._interactive_components['chat_output'].clear_output()
-
-        # Display welcome message again
-        with self._interactive_components['chat_output']:
-            display(HTML(
-                "<div style='color: #666; padding: 10px;'>"
-                "Chat cleared! Ask me a new question about your data."
-                "</div>"
-            ))
+        self._web_components.display_welcome_message()
 
     def _handle_export(self, _):
         """Handle export button click in interactive mode"""
@@ -424,6 +222,20 @@ class Chat:
         # Set up and display the interface
         self._setup_interactive_interface()
 
+    def _setup_interactive_interface(self):
+        """Set up the interactive chat interface."""
+        # Initialize web components
+        self._web_components = ChatComponents()
+        self._interactive_components = self._web_components.components
+
+        # Set up event handlers
+        self._interactive_components['send_button'].on_click(self._handle_send)
+        self._interactive_components['clear_button'].on_click(self._handle_clear)
+        self._interactive_components['text_input'].on_submit(self._handle_send)
+
+        # Display welcome message and interface
+        self._web_components.display_welcome_message()
+        self._web_components.display()
 
     def get_chat_history(self, mode='full'):
         """
