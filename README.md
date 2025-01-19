@@ -1,6 +1,11 @@
 [![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) 
 [![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
+[![Documentation](https://img.shields.io/badge/docs-augini-blue)](https://tabularis-ai.github.io/augini/)
 [![Discord](https://img.shields.io/discord/1310217643520819251?color=7289da&label=Discord&logo=discord&logoColor=ffffff)](https://discord.com/channels/1310217643520819251/)
+[![Twitter Follow](https://img.shields.io/twitter/follow/tabularis_ai?style=social)](https://x.com/tabularis_ai)
+![Last Commit](https://img.shields.io/github/last-commit/tabularis-ai/augini)
+
+
 
 
 # augini: AI-Powered Tabular Data Assistant
