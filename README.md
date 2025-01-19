@@ -1,4 +1,7 @@
-[![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) [![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
+[![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) 
+[![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
+[![Discord](https://img.shields.io/discord/1310217643520819251?color=7289da&label=Discord&logo=discord&logoColor=ffffff)](https://discord.com/channels/1310217643520819251/)
+
 
 # augini: AI-Powered Tabular Data Assistant
 
