@@ -4,6 +4,7 @@
 [![Discord](https://img.shields.io/discord/1310217643520819251?color=7289da&label=Discord&logo=discord&logoColor=ffffff)](https://discord.com/channels/1310217643520819251/)
 [![Twitter Follow](https://img.shields.io/twitter/follow/tabularis_ai?style=social)](https://x.com/tabularis_ai)
 ![Last Commit](https://img.shields.io/github/last-commit/tabularis-ai/augini)
+[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-white?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/tabularisai)
 
 
 
