@@ -4,11 +4,6 @@
   <img src="assets/images/logo_augini.png" alt="augini logo" width="200"/>
 </p>
 
-<div align="center">
-  <a href="https://discord.gg/sznxwdqBXj">
-    <img src="https://img.shields.io/badge/Discord-7289DA?&logo=discord&logoColor=white">
-  </a>
-</div>
 
 ## AI-Powered Tabular Data Framework
 
