@@ -14,8 +14,6 @@
 ![Last Commit](https://img.shields.io/github/last-commit/tabularis-ai/augini)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-white?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/tabularisai)
 
-
-
 </div>
 
 ## 🎯 What is Augini?
@@ -108,32 +106,11 @@ Augini works with multiple LLM providers:
 - Azure OpenAI
 - Anthropic (coming soon)
 
-## 📚 Documentation
-
-Visit our [documentation](https://augini.readthedocs.io/) for:
-- Detailed guides
-- API reference
-- Example notebooks
-- Best practices
 
 ## 🤝 Contributing
 
-We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! 
 
 ## 📜 License
 
 Augini is released under the [MIT License](LICENSE).
-
-## 🔗 Links
-
-- [Documentation](https://augini.readthedocs.io/)
-- [Discord Community](https://discord.gg/sznxwdqBXj)
-- [GitHub Issues](https://github.com/augini/augini/issues)
-
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=augini/augini&type=Date)](https://star-history.com/#augini/augini&Date)
-
-## 🙏 Acknowledgments
-
-Special thanks to our contributors and the open-source community!
