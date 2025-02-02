@@ -1,10 +1,15 @@
 openai>=1.35.13
-pandas
-tqdm
+pandas>=2.0.0
+tqdm>=4.65.0
 numpy<2.0.0
-nest_asyncio
-pydantic
+nest_asyncio>=1.5.6
+pydantic>=2.0.0
+PyYAML>=6.0.0
+python-dotenv>=1.0.0
 
-# Optional dependencies for memory/NLP features
-sentence-transformers>=2.2.0; extra == 'memory'
-spacy>=3.5.0; extra == 'memory'
+# Development dependencies
+pytest>=7.0.0; extra == 'dev'
+black>=22.0.0; extra == 'dev'
+isort>=5.0.0; extra == 'dev'
+mypy>=1.0.0; extra == 'dev'
+pylint>=2.17.0; extra == 'dev'

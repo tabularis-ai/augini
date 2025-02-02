@@ -4,44 +4,96 @@ version = "0.3.0"
 authors = [
   { name = "Vadim Borisov", email = "vadim@tabularis.ai" },
 ]
-description = "A framework for generating synthetic tabular data using AI"
+description = "AI-powered Python framework for tabular data enrichment and analysis using LLMs. Features include intelligent feature engineering, natural language data analysis, and AI agents for automated workflows."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.7"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-keywords = ["augini", "synthetic data", "tabular data", "AI", "data generation", "OpenAI", "OpenRouter"]
+keywords = [
+    "AI agents",
+    "augini",
+    "LLM",
+    "data analysis",
+    "feature engineering",
+    "tabular data",
+    "data enrichment",
+    "natural language",
+    "data science",
+    "machine learning",
+]
 dependencies = [
     "openai>=1.35.13",
-    "pandas",
+    "pandas>=2.0.0",
     "numpy<2.0.0",
-    "tqdm",
-    "nest_asyncio",
-    "pydantic",
+    "tqdm>=4.65.0",
+    "nest_asyncio>=1.5.6",
+    "pydantic>=2.0.0",
+    "PyYAML>=6.0.0",
+    "python-dotenv>=1.0.0",
 ]
 
 [project.optional-dependencies]
-memory = [
-    "sentence-transformers>=2.2.0",
-    "spacy>=3.5.0",
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "isort>=5.0.0",
+    "mypy>=1.0.0",
+    "pylint>=2.17.0",
+    "mkdocs-material>=9.0.0",
+    "mkdocs-minify-plugin>=0.7.0"
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/tabularis-ai/augini"
 "Bug Tracker" = "https://github.com/tabularis-ai/augini/issues"
+"Documentation" = "https://tabularis-ai.github.io/augini"
+"Discord" = "https://discord.com/channels/1310217643520819251/"
 
 [tool.setuptools]
 packages = ["augini"]
 
-
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ['py37']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 100
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+
+[tool.pylint.messages_control]
+disable = ["C0111", "C0103", "C0301"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

@@ -1,107 +1,139 @@
-[![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) [![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
-
-# augini: AI-Powered Tabular Data Assistant
-
-🔥  Demo: https://huggingface.co/spaces/tabularisai/augini
+# Augini 🤖
 
 <p align="center">
-  <img src="img/logo_augini.png" alt="augini logo" width="200"/>
+  <img src="docs/assets/images/logo_augini.png" alt="augini logo" width="200"/>
 </p>
 
-`augini` is an AI-powered data assistant that brings RAG (Retrieval-Augmented Generation) capabilities to your tabular data (CSV, Excel, XLSX). Built with state-of-the-art language models, it provides an intuitive chat interface for data analysis and powerful data manipulation capabilities.
+<div align="center">
+  
+[![PyPI version](https://badge.fury.io/py/augini.svg)](https://badge.fury.io/py/augini) 
+[![Downloads](https://static.pepy.tech/badge/augini)](https://pepy.tech/project/augini)
+[![Documentation](https://img.shields.io/badge/docs-augini-blue)](https://tabularis-ai.github.io/augini/)
+[![Discord](https://img.shields.io/discord/1310217643520819251?color=7289da&label=Discord&logo=discord&logoColor=ffffff)](https://discord.com/channels/1310217643520819251/)
+[![Twitter Follow](https://img.shields.io/twitter/follow/tabularis_ai?style=social)](https://x.com/tabularis_ai)
+![Last Commit](https://img.shields.io/github/last-commit/tabularis-ai/augini)
+[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-white?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/tabularisai)
 
-## Key Features
 
-### 🤖 Interactive Data Chat (aka RAG for Tables)
 
-Have natural conversations with your data using `augini`'s chat interface. Works with any tabular format (CSV, Excel, Pandas DataFrames):
+</div>
 
-```python
-from augini import Augini
-import pandas as pd
+## 🎯 What is Augini?
 
-# Initialize with your preferred model
-augini = Augini(api_key="your-api-key", model="gpt-4o-mini")
+Augini is an AI-powered Python framework for tabular data enrichment and analysis. It leverages Large Language Models (LLMs) to:
+- Generate meaningful features from your data
+- Provide natural language data analysis
+- Create AI agents for automated data workflows
 
-# Load your data (CSV, Excel, or any pandas-supported format)
-df = pd.read_csv("your_data.csv")  # or pd.read_excel("your_data.xlsx")
-
-# Start chatting with your data - properly display markdown responses
-from IPython.display import display, Markdown
-
-response = augini.chat("What are the main patterns in this dataset?", df)
-display(Markdown(response))
-
-# Ask follow-up questions with context awareness
-response = augini.chat("Can you analyze the correlation between age and income?", df)
-display(Markdown(response))
-```
-
-### 🔄 Intelligent Data Augmentation
-
-Enhance your datasets with AI-generated features:
-
-```python
-# Add synthetic features based on existing data
-result_df = augini.augment_columns(df, ['occupation', 'interests', 'personality_type'])
-
-# Generate custom features with specific prompts
-custom_prompt = """
-Based on the person's age and location, suggest:
-1. A likely income bracket
-2. Preferred shopping categories
-3. Travel preferences
-
-Respond with a JSON object with keys 'income_bracket', 'shopping_preferences', 'travel_style'.
-"""
-
-enriched_df = augini.augment_columns(df, 
-    ['income_bracket', 'shopping_preferences', 'travel_style'],
-    custom_prompt=custom_prompt
-)
-```
-
-### 🔒 Data Anonymization
-
-Generate privacy-safe synthetic data while preserving statistical properties:
-
-```python
-# Define anonymization strategy
-anonymize_prompt = """
-Create an anonymized version that:
-1. Replaces personal identifiers with synthetic data
-2. Maintains statistical distributions
-3. Preserves relationships between variables
-
-Respond with a JSON object containing anonymized values.
-"""
-
-# Apply anonymization
-anonymous_df = augini.augment_columns(df, 
-    ['name_anon', 'email_anon', 'address_anon'],
-    custom_prompt=anonymize_prompt
-)
-```
-
-## Installation
+## 🚀 Quick Start
 
 ```bash
 pip install augini
 ```
 
-## Quick Start
-
-1. Get your API key from OpenAI or OpenRouter
-2. Initialize Augini:
 ```python
-# Using OpenAI
-augini = Augini(api_key="your-api-key", model="gpt-4o-mini", use_openrouter=False)
+from augini import DataEngineer, DataAnalyzer
+import pandas as pd
 
-# Using OpenRouter
-augini = Augini(api_key="your-api-key", model="meta-llama/llama-3-8b-instruct", use_openrouter=True)
+# Sample customer data
+df = pd.DataFrame({
+    'CustomerID': ['C001', 'C002'],
+    'Age': [25, 45],
+    'MonthlyCharges': [50.0, 75.0]
+})
+
+# Initialize with your API key (supports OpenAI, OpenRouter, Azure)
+engineer = DataEngineer(
+    api_key="your-api-key",
+    model="gpt-4o-mini",  # Use OpenRouter's GPT-4
+    base_url="https://openrouter.ai/api/v1"  # Optional: use OpenRouter
+)
+
+# Generate customer insights
+df = engineer.generate_features(
+    df=df,
+    features=[
+        {
+            'name': 'CustomerSegment',
+            'description': 'Classify customer segment based on age and spending',
+            'output_type': 'category',
+            'constraints': {'categories': ['Premium', 'Regular', 'Budget']}
+        },
+        {
+            'name': 'ChurnRisk',
+            'description': 'Calculate churn risk score (0-100)',
+            'output_type': 'float',
+            'constraints': {'min': 0, 'max': 100}
+        }
+    ]
+)
+
+# Initialize analyzer for natural language insights
+analyzer = DataAnalyzer(
+    api_key="your-api-key",
+    model="gpt-4o-mini",
+    enable_memory=True  # Enable conversation context
+)
+
+# Fit data and ask questions
+analyzer.fit(df)
+insights = analyzer.chat("What patterns do you see in customer segments?")
+print(insights)
 ```
 
-## Enterprise Solutions
+## 🎁 Key Features
 
-For enterprise deployments, local installations, or custom solutions, contact us:
-- Email: info@tabularis.ai
+### 🔄 DataEngineer
+- **Feature Generation**: Create meaningful features using AI
+- **Data Augmentation**: Enrich datasets with synthetic data
+- **Custom Constraints**: Control output formats and ranges
+- **Batch Processing**: Handle large datasets efficiently
+
+### 📊 DataAnalyzer
+- **Natural Language Analysis**: Ask questions about your data
+- **Pattern Detection**: Uncover hidden trends and correlations
+- **Memory Context**: Build on previous analysis
+- **Visualization Integration**: Generate plots and charts
+
+### 🤖 AI Agents
+- **Automated Workflows**: Create agents for repetitive tasks
+- **Custom Behaviors**: Define agent goals and constraints
+- **Chain Actions**: Connect multiple agents for complex workflows
+
+## 🌐 Provider Agnostic
+
+Augini works with multiple LLM providers:
+- OpenAI
+- OpenRouter
+- Azure OpenAI
+- Anthropic (coming soon)
+
+## 📚 Documentation
+
+Visit our [documentation](https://augini.readthedocs.io/) for:
+- Detailed guides
+- API reference
+- Example notebooks
+- Best practices
+
+## 🤝 Contributing
+
+We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## 📜 License
+
+Augini is released under the [MIT License](LICENSE).
+
+## 🔗 Links
+
+- [Documentation](https://augini.readthedocs.io/)
+- [Discord Community](https://discord.gg/sznxwdqBXj)
+- [GitHub Issues](https://github.com/augini/augini/issues)
+
+## 🌟 Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=augini/augini&type=Date)](https://star-history.com/#augini/augini&Date)
+
+## 🙏 Acknowledgments
+
+Special thanks to our contributors and the open-source community!

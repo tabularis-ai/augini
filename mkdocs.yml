@@ -1,49 +1,51 @@
-site_name: Augini
-site_url: https://tabularis-ai.github.io/augini/
+site_name: Augini Documentation
+site_description: AI-Powered Tabular Data Augmentation Framework
+site_author: Tabularis AI
 repo_url: https://github.com/tabularis-ai/augini
-repo_name: tabularis-ai/augini
 
 theme:
   name: material
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
+    - scheme: default
       primary: indigo
-      accent: blue
+      accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
+    - scheme: slate
       primary: indigo
-      accent: blue
+      accent: indigo
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-  font:
-    text: Roboto
-    code: Roboto Mono
   features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.top
+    - navigation.instant
     - navigation.tracking
-    - navigation.indexes
-    - toc.integrate
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
     - search.suggest
     - search.highlight
-    - content.tabs.link
     - content.code.copy
-  logo: assets/images/logo_augini.png
-  favicon: assets/images/favicon.png
-  icon:
-    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Quick Start: quick-start.md
+    - Provider Agnostic: provider-agnostic.md
+  - APIs:
+    - DataEngineer: data-engineer.md
+    - DataAnalyzer: data-analyzer.md
+    - Chat Interface: chat.md
+  - Configuration: configuration.md
 
 markdown_extensions:
-  - tables
-  - attr_list
-  - def_list
-  - md_in_html
+  - admonition
+  - codehilite
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
@@ -51,33 +53,15 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-  - admonition
-  - pymdownx.details
-  - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-
-extra:
-  social:
-    - icon: fontawesome/brands/discord
-      link: https://discord.gg/sznxwdqBXj
-    - icon: fontawesome/brands/github
-      link: https://github.com/tabularis-ai/augini
-  consent:
-    title: Cookie consent
-    description: >- 
-      We use cookies to recognize your repeated visits and preferences, as well
-      as to measure the effectiveness of our documentation and whether users
-      find what they're searching for. With your consent, you're helping us to
-      make our documentation better.
-
-copyright: >
-  Copyright &copy; 2025 Tabularis.AI –
-  <a href="#__consent">Change cookie settings</a>
 
 plugins:
   - search
-  - tags
+  - minify:
+      minify_html: true
 
-extra_css:
-  - assets/stylesheets/extra.css
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tabularis-ai/augini
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/sznxwdqBXj

@@ -1,86 +1,72 @@
-## *Build and Enhance Custom Datasets for your Use Case*
+# Augini Documentation
 
 <p align="center">
   <img src="assets/images/logo_augini.png" alt="augini logo" width="200"/>
 </p>
 
-<a href="https://discord.gg/sznxwdqBXj">
-  <img src="https://img.shields.io/badge/Discord-7289DA?&amp;logo=discord&amp;logoColor=white">
-</a>
+<div align="center">
+  <a href="https://discord.gg/sznxwdqBXj">
+    <img src="https://img.shields.io/badge/Discord-7289DA?&logo=discord&logoColor=white">
+  </a>
+</div>
 
+## AI-Powered Tabular Data Framework
 
-# AI-Powered Tabular Data Augmentation, Generation, Labeling, and Anonymization 
+Augini is a Python framework that leverages AI for data manipulation and analysis through two powerful APIs:
 
-`augini` is a versatile Python framework that leverages AI for comprehensive data manipulation. It uses large language models to augment, generate, and anonymize tabular data, creating realistic and privacy-preserving datasets.
+### DataEngineer
+Transform and prepare your data with automated:
+- Feature engineering
+- Data preprocessing
+- Dataset scaling
+- Data augmentation
 
-
-## Data Augmentation:
-
-- Enhance existing datasets with AI-generated features
-- Add contextual information based on current data
-- Infuse domain knowledge from LLMs
-
-
-## Synthetic Data Generation and Extantion:
-
-- Create entirely new, realistic datasets
-- Maintain statistical properties of original data
-- Generate diverse, coherent synthetic profiles
-
-
-## Data Anonymization:
-
-- Implement k-anonymity and l-diversity
-- Generate synthetic identifiers
-- Balance privacy and data utility
-
-## Use Cases
-
-- Augment ML training datasets
-- Generate privacy-safe data for sharing
-- Automatic labeling using state-of-the-art AI models 
-- Create synthetic data for software testing
-- Develop realistic scenarios for business planning
-- Produce diverse datasets for research and education
-
-
-## Installation
-
-You can install Augini using pip:
-```sh
-pip install augini
-```
+### DataAnalyzer
+Extract insights from your data using:
+- Statistical analysis
+- Trend detection
+- Pattern recognition
+- Visualization integration
 
 ## Quick Start
 
-Here's a simple example of how to use Augini:
-
 ```python
-from augini import Augini
+from augini import DataEngineer, DataAnalyzer
 import pandas as pd
 
-api_key = "OpenAI or OpenRouter token"
+# Sample customer data
+data = pd.DataFrame({
+    'age': [25, 35, 45, 28, 52],
+    'income': [30000, 45000, 75000, 35000, 85000],
+    'purchases': [150, 450, 850, 250, 950]
+})
 
-# OpenAI
-augini = Augini(api_key=api_key,  model='gpt-4-turbo', use_openrouter=False)
+# Initialize with your API key
+engineer = DataEngineer(api_key='your-api-key')
 
-# OpenRouter 
-augini = Augini(api_key=api_key, use_openrouter=True, model='meta-llama/llama-3-8b-instruct')
+# Generate customer segments
+data = engineer.generate_feature(
+    df=data,
+    name='customer_segment',
+    description='Create customer segments based on age, income, and purchases',
+    output_type='category'
+)
 
-# Create a sample DataFrame
-data = {
-    'Place of Birth': ['New York', 'London', 'Tokyo'],
-    'Age': [30, 25, 40],
-    'Gender': ['Male', 'Female', 'Male']
-}
-df = pd.DataFrame(data)
+# Initialize analyzer and fit the data
+analyzer = DataAnalyzer(api_key='your-api-key')
+analyzer.fit(data)
 
-# Add synthetic features
-result_df = augini.augment_columns(df, ['NAME', 'OCCUPATION', 'FAVORITE_DRINK'])
+# Ask questions about the data
+insights = analyzer.chat(
+    "What are the characteristics of different customer segments? "
+    "Focus on age, income, and purchase patterns."
+)
 
-print(result_df)
+print(insights)
 ```
 
-### Contact us
-- [info@tabularis.ai](mailto:info@tabularis.ai)
+## Documentation Sections
 
+- [Quick Start & API Overview](quick-start.md) - Installation and basic usage
+- [APIs](data-engineer.md) - Detailed API documentation
+- [Chat Interface](chat.md) - Interactive data analysis
