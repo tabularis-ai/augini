@@ -44,8 +44,7 @@ nav:
   - APIs:
     - DataEngineer: data-engineer.md
     - DataAnalyzer: data-analyzer.md
-    - Chat Interface: chat.md
-
+    
 markdown_extensions:
   - admonition
   - attr_list
