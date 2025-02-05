@@ -45,8 +45,6 @@ nav:
     - DataEngineer: data-engineer.md
     - DataAnalyzer: data-analyzer.md
     - Chat Interface: chat.md
-  - Configuration: configuration.md
-  - Privacy: privacy.md
 
 markdown_extensions:
   - admonition
