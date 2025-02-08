@@ -253,13 +253,17 @@ class DataEngineer:
         Returns:
             Formatted prompt string
         """
+        # Get relevant columns
+        relevant_columns = spec.source_columns if spec.source_columns else df.columns
+        relevant_df = df[relevant_columns]
+
         prompt = [
             f"Generate a {spec.output_type} feature named '{spec.new_feature_name}'",
             f"Description: {spec.new_feature_description}",
-            "\nDataset Information:",
-            f"- Shape: {df.shape[0]} rows, {df.shape[1]} columns",
-            f"- Columns: {', '.join(df.columns)}",
-            f"- Data Types: {df.dtypes.to_dict()}\n",
+            "\nRelevant Dataset Information:",
+            f"- Shape: {df.shape[0]} rows, {len(relevant_columns)} columns",
+            f"- Columns: {', '.join(relevant_columns)}",
+            f"- Data Types: {relevant_df.dtypes.to_dict()}\n",
         ]
 
         if spec.constraints:
@@ -331,6 +335,16 @@ class DataEngineer:
         Returns:
             Formatted prompt string
         """
+        # Collect all unique source columns across all features
+        all_source_columns = set()
+        for spec in specs:
+            if spec.source_columns:
+                all_source_columns.update(spec.source_columns)
+        
+        # If no source columns specified for any feature, use all columns
+        relevant_columns = list(all_source_columns) if all_source_columns else df.columns
+        relevant_df = df[relevant_columns]
+
         prompt = [
             "Generate multiple features with these specifications:",
             "\nFeatures to generate:"
@@ -348,10 +362,10 @@ class DataEngineer:
                 prompt.append(f"- Source columns: {', '.join(spec.source_columns)}")
 
         prompt.extend([
-            "\nDataset Information:",
-            f"- Shape: {df.shape[0]} rows, {df.shape[1]} columns",
-            f"- Columns: {', '.join(df.columns)}",
-            f"- Data Types: {df.dtypes.to_dict()}\n"
+            "\nRelevant Dataset Information:",
+            f"- Shape: {df.shape[0]} rows, {len(relevant_columns)} columns",
+            f"- Columns: {', '.join(relevant_columns)}",
+            f"- Data Types: {relevant_df.dtypes.to_dict()}\n"
         ])
 
         return "\n".join(prompt)
