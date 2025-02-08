@@ -21,8 +21,8 @@ df = pd.DataFrame({
 # Generate a single feature
 df = engineer.generate_feature(
     df=df,
-    name='customer_segment',
-    description='Classify customer into segments based on spending',
+    new_feature_name='customer_segment',
+    new_feature_description='Classify customer into segments based on spending',
     output_type='category',
     constraints={'categories': ['Premium', 'Regular', 'Budget']}
 )
@@ -36,8 +36,8 @@ df = engineer.generate_feature(
 # Generate occupation prediction
 df = engineer.generate_feature(
     df=df,
-    name='PredictedOccupation',
-    description="Predict occupation based on age and spending",
+    new_feature_name='PredictedOccupation',
+    new_feature_description="Predict occupation based on age and spending",
     output_type='text'
 )
 
@@ -54,14 +54,14 @@ augmented_df = engineer.generate_features(
     df=df,
     features=[
         {
-            'name': 'ChurnRisk',
-            'description': 'Calculate churn risk score (0-100)',
+            'new_feature_name': 'ChurnRisk',
+            'new_feature_description': 'Calculate churn risk score (0-100)',
             'output_type': 'float',
             'constraints': {'min': 0, 'max': 100}
         },
         {
-            'name': 'RetentionOffer',
-            'description': 'Suggest personalized retention offer',
+            'new_feature_name': 'RetentionOffer',
+            'new_feature_description': 'Suggest personalized retention offer',
             'output_type': 'text'
         }
     ],
@@ -95,8 +95,8 @@ engineer = DataEngineer(
 # Numeric output with constraints
 df = engineer.generate_feature(
     df=df,
-    name='risk_score',
-    description='Calculate risk score',
+    new_feature_name='risk_score',
+    new_feature_description='Calculate risk score',
     output_type='float',
     constraints={
         'min': 0,
@@ -108,8 +108,8 @@ df = engineer.generate_feature(
 # Categorical output with defined categories
 df = engineer.generate_feature(
     df=df,
-    name='segment',
-    description='Customer segment',
+    new_feature_name='segment',
+    new_feature_description='Customer segment',
     output_type='category',
     constraints={
         'categories': ['Premium', 'Regular', 'Budget']
@@ -145,8 +145,8 @@ data = pd.read_csv('your_data.csv')
 # Generate a new feature
 result = engineer.generate_feature(
     df=data,
-    name='risk_score',
-    description='Calculate customer risk score based on transaction history',
+    new_feature_name='risk_score',
+    new_feature_description='Calculate customer risk score based on transaction history',
     output_type='float'
 )
 ```
@@ -159,8 +159,8 @@ result = engineer.generate_feature(
 # Generate a specific feature
 feature_data = engineer.generate_feature(
     df=data,
-    name='customer_segment',
-    description="Create customer segments based on behavior",
+    new_feature_name='customer_segment',
+    new_feature_description="Create customer segments based on behavior",
     output_type='category',
     source_columns=['age', 'income', 'purchase_history']
 )
@@ -174,14 +174,14 @@ features_data = engineer.generate_features(
     df=data,
     features=[
         {
-            'name': 'lifetime_value',
-            'description': "Predict customer lifetime value",
+            'new_feature_name': 'lifetime_value',
+            'new_feature_description': "Predict customer lifetime value",
             'output_type': 'float',
             'constraints': {'min': 0}
         },
         {
-            'name': 'churn_risk',
-            'description': "Assess customer churn risk",
+            'new_feature_name': 'churn_risk',
+            'new_feature_description': "Assess customer churn risk",
             'output_type': 'category'
         }
     ]
@@ -196,8 +196,8 @@ features_data = engineer.generate_features(
 # Generate feature with constraints
 result = engineer.generate_feature(
     df=data,
-    name='satisfaction_score',
-    description='Calculate customer satisfaction score',
+    new_feature_name='satisfaction_score',
+    new_feature_description='Calculate customer satisfaction score',
     output_type='float',
     constraints={
         'min': 0,
@@ -213,8 +213,8 @@ result = engineer.generate_feature(
 # Handle large datasets efficiently
 result = engineer.generate_feature(
     df=large_data,
-    name='risk_score',
-    description='Calculate risk score',
+    new_feature_name='risk_score',
+    new_feature_description='Calculate risk score',
     output_type='float',
     batch_size=32
 )
@@ -225,7 +225,7 @@ result = engineer.generate_feature(
 ```python
 config = {
     # Model settings
-    'model': 'gpt-4-turbo-preview',
+    'model': 'gpt-4o-mini',
     'temperature': 0.7,
     
     # Processing settings

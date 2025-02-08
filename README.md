@@ -52,14 +52,14 @@ df = engineer.generate_features(
     df=df,
     features=[
         {
-            'name': 'CustomerSegment',
-            'description': 'Classify customer segment based on age and spending',
+            'new_feature_name': 'CustomerSegment',
+            'new_feature_description': 'Classify customer segment based on age and spending',
             'output_type': 'category',
             'constraints': {'categories': ['Premium', 'Regular', 'Budget']}
         },
         {
-            'name': 'ChurnRisk',
-            'description': 'Calculate churn risk score (0-100)',
+            'new_feature_name': 'ChurnRisk',
+            'new_feature_description': 'Calculate churn risk score (0-100)',
             'output_type': 'float',
             'constraints': {'min': 0, 'max': 100}
         }

@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 class FeatureSpec(BaseModel):
     """Feature generation specification."""
 
-    name: str = Field(..., description="Name of the feature to generate")
-    description: str = Field(..., description="Description of what to generate")
+    new_feature_name: str = Field(..., description="Name of the feature to generate")
+    new_feature_description: str = Field(..., description="Description of what to generate")
     output_type: str = Field(..., description="Type of output (float, category, text)")
     constraints: Optional[Dict] = Field(default=None, description="Value constraints")
     source_columns: Optional[List[str]] = Field(default=None, description="Input columns")
@@ -182,8 +182,8 @@ class DataEngineer:
     def generate_feature(
         self,
         df: pd.DataFrame,
-        name: str,
-        description: str,
+        new_feature_name: str,
+        new_feature_description: str,
         output_type: str = "float",
         constraints: Optional[Dict] = None,
         source_columns: Optional[List[str]] = None,
@@ -194,8 +194,8 @@ class DataEngineer:
 
         Args:
             df: Input DataFrame
-            name: Name of feature to generate
-            description: Description of what to generate
+            new_feature_name: Name of feature to generate
+            new_feature_description: Description of what to generate
             output_type: Type of output (float, category, text)
             constraints: Value constraints
             source_columns: Input columns to use
@@ -211,19 +211,19 @@ class DataEngineer:
         if df.empty:
             raise ValueError("DataFrame must not be empty")
 
-        if not name:
-            raise ValueError("name cannot be empty")
+        if not new_feature_name:
+            raise ValueError("new_feature_name cannot be empty")
         
-        if not description:
-            raise ValueError("description cannot be empty")
+        if not new_feature_description:
+            raise ValueError("new_feature_description cannot be empty")
         
         valid_types = ["float", "category", "text"]
         if output_type not in valid_types:
             raise ValueError("Unsupported output type")
 
         spec = FeatureSpec(
-            name=name,
-            description=description,
+            new_feature_name=new_feature_name,
+            new_feature_description=new_feature_description,
             output_type=output_type,
             constraints=constraints,
             source_columns=source_columns
@@ -232,11 +232,11 @@ class DataEngineer:
         prompt = self._create_feature_prompt(df, spec)
 
         if use_sync:
-            result_df = self._generate_features_sync(df, [name], prompt)
+            result_df = self._generate_features_sync(df, [new_feature_name], prompt)
         else:
             progress_bar = tqdm(total=len(df)) if show_progress else None
             result_df = asyncio.run(
-                self._generate_features(df, [name], prompt, progress_bar)
+                self._generate_features(df, [new_feature_name], prompt, progress_bar)
             )
             if progress_bar:
                 progress_bar.close()
@@ -254,8 +254,8 @@ class DataEngineer:
             Formatted prompt string
         """
         prompt = [
-            f"Generate a {spec.output_type} feature named '{spec.name}'",
-            f"Description: {spec.description}",
+            f"Generate a {spec.output_type} feature named '{spec.new_feature_name}'",
+            f"Description: {spec.new_feature_description}",
             "\nDataset Information:",
             f"- Shape: {df.shape[0]} rows, {df.shape[1]} columns",
             f"- Columns: {', '.join(df.columns)}",
@@ -303,7 +303,7 @@ class DataEngineer:
             try:
                 spec = FeatureSpec(**feature)
                 specs.append(spec)
-                feature_names.append(spec.name)
+                feature_names.append(spec.new_feature_name)
             except ValidationError as e:
                 raise ValueError(f"Invalid feature specification: {e}")
 
@@ -338,9 +338,9 @@ class DataEngineer:
 
         for spec in specs:
             prompt.extend([
-                f"\n{spec.name}:",
+                f"\n{spec.new_feature_name}:",
                 f"- Type: {spec.output_type}",
-                f"- Description: {spec.description}"
+                f"- Description: {spec.new_feature_description}"
             ])
             if spec.constraints:
                 prompt.append(f"- Constraints: {spec.constraints}")

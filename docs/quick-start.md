@@ -52,8 +52,8 @@ analyzer = DataAnalyzer(api_key='your-api-key')
 # Step 1: Generate new features using DataEngineer
 engineered_data = engineer.generate_feature(
     df=data,
-    name='customer_segment',
-    description="Create customer segments based on age, income, and purchase_amount",
+    new_feature_name='customer_segment',
+    new_feature_description="Create customer segments based on age, income, and purchase_amount",
     output_type='category'
 )
 
@@ -93,8 +93,8 @@ This example demonstrates:
 # Generate a single feature
 feature_data = engineer.generate_feature(
     df=data,
-    name='risk_score',
-    description="Generate risk score based on customer behavior",
+    new_feature_name='risk_score',
+    new_feature_description="Generate risk score based on customer behavior",
     output_type='float'
 )
 
@@ -103,13 +103,13 @@ features_data = engineer.generate_features(
     df=data,
     features=[
         {
-            'name': 'lifetime_value',
-            'description': "Predict customer lifetime value",
+            'new_feature_name': 'lifetime_value',
+            'new_feature_description': "Predict customer lifetime value",
             'output_type': 'float'
         },
         {
-            'name': 'churn_risk',
-            'description': "Assess customer churn risk",
+            'new_feature_name': 'churn_risk',
+            'new_feature_description': "Assess customer churn risk",
             'output_type': 'category'
         }
     ]

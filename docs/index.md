@@ -42,8 +42,8 @@ engineer = DataEngineer(api_key='your-api-key')
 # Generate customer segments
 data = engineer.generate_feature(
     df=data,
-    name='customer_segment',
-    description='Create customer segments based on age, income, and purchases',
+    new_feature_name='customer_segment',
+    new_feature_description='Create customer segments based on age, income, and purchases',
     output_type='category'
 )
 

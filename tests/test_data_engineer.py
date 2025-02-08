@@ -49,8 +49,8 @@ def test_generate_feature(engineer, sample_df):
         
         result = engineer.generate_feature(
             df=sample_df,
-            name="engagement_score",
-            description="Calculate customer engagement score (0-100)",
+            new_feature_name="engagement_score",
+            new_feature_description="Calculate customer engagement score (0-100)",
             output_type="float",
             source_columns=["purchase_amount", "items_bought", "is_first_purchase"],
             constraints={"min": 0, "max": 100}
@@ -69,14 +69,14 @@ def test_generate_multiple_features(engineer, sample_df):
         
         features = [
             {
-                "name": "purchase_frequency_score",
-                "description": "Score indicating purchase frequency (0-10)",
+                "new_feature_name": "purchase_frequency_score",
+                "new_feature_description": "Score indicating purchase frequency (0-10)",
                 "output_type": "float",
                 "constraints": {"min": 0, "max": 10}
             },
             {
-                "name": "customer_status",
-                "description": "Customer status based on activity",
+                "new_feature_name": "customer_status",
+                "new_feature_description": "Customer status based on activity",
                 "output_type": "category",
                 "constraints": {"categories": ["New", "Active", "Dormant"]}
             }
@@ -103,26 +103,26 @@ def test_invalid_inputs(engineer, invalid_input, error_type, error_match):
     with pytest.raises(error_type, match=error_match):
         engineer.generate_feature(
             df=invalid_input,
-            name="test_feature",
-            description="test description",
+            new_feature_name="test_feature",
+            new_feature_description="test description",
             output_type="float"
         )
 
 
 @pytest.mark.parametrize(
-    "output_type,name,description,expected_error",
+    "output_type,new_feature_name,new_feature_description,expected_error",
     [
         ("invalid", "test", "test desc", "Unsupported output type"),
         ("float", "", "test desc", "name cannot be empty"),
         ("float", "test", "", "description cannot be empty"),
     ],
 )
-def test_invalid_parameters(engineer, sample_df, output_type, name, description, expected_error):
+def test_invalid_parameters(engineer, sample_df, output_type, new_feature_name, new_feature_description, expected_error):
     """Test error handling for invalid parameters."""
     with pytest.raises(ValueError, match=expected_error):
         engineer.generate_feature(
             df=sample_df,
-            name=name,
-            description=description,
+            new_feature_name=new_feature_name,
+            new_feature_description=new_feature_description,
             output_type=output_type
         )
