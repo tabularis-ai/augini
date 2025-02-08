@@ -172,7 +172,7 @@ feature_data = engineer.generate_feature(
 # Generate multiple features at once
 features_data = engineer.generate_features(
     df=data,
-    features=[
+    new_feature_specs=[
         {
             'new_feature_name': 'lifetime_value',
             'new_feature_description': "Predict customer lifetime value",

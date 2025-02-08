@@ -273,7 +273,7 @@ class DataEngineer:
     def generate_features(
         self,
         df: pd.DataFrame,
-        features: List[Dict[str, Any]],
+        new_feature_specs: List[Dict[str, Any]],
         use_sync: bool = False,
         show_progress: bool = True,
     ) -> pd.DataFrame:
@@ -281,7 +281,7 @@ class DataEngineer:
 
         Args:
             df: Input DataFrame
-            features: List of feature specifications
+            new_feature_specs: List of feature specifications
             use_sync: Use synchronous processing
             show_progress: Show progress bar
 
@@ -294,12 +294,12 @@ class DataEngineer:
         if df.empty:
             raise ValueError("DataFrame must not be empty")
 
-        if not features:
-            raise ValueError("Feature list cannot be empty")
+        if not new_feature_specs:
+            raise ValueError("New feature specifications cannot be empty")
 
         specs = []
         feature_names = []
-        for feature in features:
+        for feature in new_feature_specs:
             try:
                 spec = FeatureSpec(**feature)
                 specs.append(spec)

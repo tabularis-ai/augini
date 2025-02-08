@@ -126,3 +126,19 @@ def test_invalid_parameters(engineer, sample_df, output_type, new_feature_name, 
             new_feature_description=new_feature_description,
             output_type=output_type
         )
+
+
+def test_generate_features_empty_new_feature_specs(engineer, sample_df):
+    """Ensure generate_features raises an error when new_feature_specs is empty."""
+    with pytest.raises(ValueError, match="New feature specifications cannot be empty"):
+        engineer.generate_features(df=sample_df, new_feature_specs=[])
+
+
+def test_generate_features_invalid_new_feature_spec(engineer, sample_df):
+    """Ensure generate_features raises an error for invalid new_feature_specs."""
+    # Missing "new_feature_description" which is required by FeatureSpec.
+    invalid_specs = [
+        {"new_feature_name": "test_feature", "output_type": "float"}
+    ]
+    with pytest.raises(ValueError, match="Invalid feature specification"):
+        engineer.generate_features(df=sample_df, new_feature_specs=invalid_specs)
