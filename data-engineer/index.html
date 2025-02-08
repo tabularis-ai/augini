@@ -14,16 +14,16 @@
 <a id=__codelineno-0-14 name=__codelineno-0-14 href=#__codelineno-0-14></a><span class=c1># Generate a single feature</span>
 <a id=__codelineno-0-15 name=__codelineno-0-15 href=#__codelineno-0-15></a><span class=n>df</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-0-16 name=__codelineno-0-16 href=#__codelineno-0-16></a>    <span class=n>df</span><span class=o>=</span><span class=n>df</span><span class=p>,</span>
-<a id=__codelineno-0-17 name=__codelineno-0-17 href=#__codelineno-0-17></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;customer_segment&#39;</span><span class=p>,</span>
-<a id=__codelineno-0-18 name=__codelineno-0-18 href=#__codelineno-0-18></a>    <span class=n>description</span><span class=o>=</span><span class=s1>&#39;Classify customer into segments based on spending&#39;</span><span class=p>,</span>
+<a id=__codelineno-0-17 name=__codelineno-0-17 href=#__codelineno-0-17></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;customer_segment&#39;</span><span class=p>,</span>
+<a id=__codelineno-0-18 name=__codelineno-0-18 href=#__codelineno-0-18></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s1>&#39;Classify customer into segments based on spending&#39;</span><span class=p>,</span>
 <a id=__codelineno-0-19 name=__codelineno-0-19 href=#__codelineno-0-19></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;category&#39;</span><span class=p>,</span>
 <a id=__codelineno-0-20 name=__codelineno-0-20 href=#__codelineno-0-20></a>    <span class=n>constraints</span><span class=o>=</span><span class=p>{</span><span class=s1>&#39;categories&#39;</span><span class=p>:</span> <span class=p>[</span><span class=s1>&#39;Premium&#39;</span><span class=p>,</span> <span class=s1>&#39;Regular&#39;</span><span class=p>,</span> <span class=s1>&#39;Budget&#39;</span><span class=p>]}</span>
 <a id=__codelineno-0-21 name=__codelineno-0-21 href=#__codelineno-0-21></a><span class=p>)</span>
 </code></pre></div> <h2 id=feature-generation-examples>Feature Generation Examples<a class=headerlink href=#feature-generation-examples title="Permanent link">&para;</a></h2> <h3 id=single-feature-generation>Single Feature Generation<a class=headerlink href=#single-feature-generation title="Permanent link">&para;</a></h3> <div class=highlight><pre><span></span><code><a id=__codelineno-1-1 name=__codelineno-1-1 href=#__codelineno-1-1></a><span class=c1># Generate occupation prediction</span>
 <a id=__codelineno-1-2 name=__codelineno-1-2 href=#__codelineno-1-2></a><span class=n>df</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-1-3 name=__codelineno-1-3 href=#__codelineno-1-3></a>    <span class=n>df</span><span class=o>=</span><span class=n>df</span><span class=p>,</span>
-<a id=__codelineno-1-4 name=__codelineno-1-4 href=#__codelineno-1-4></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;PredictedOccupation&#39;</span><span class=p>,</span>
-<a id=__codelineno-1-5 name=__codelineno-1-5 href=#__codelineno-1-5></a>    <span class=n>description</span><span class=o>=</span><span class=s2>&quot;Predict occupation based on age and spending&quot;</span><span class=p>,</span>
+<a id=__codelineno-1-4 name=__codelineno-1-4 href=#__codelineno-1-4></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;PredictedOccupation&#39;</span><span class=p>,</span>
+<a id=__codelineno-1-5 name=__codelineno-1-5 href=#__codelineno-1-5></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s2>&quot;Predict occupation based on age and spending&quot;</span><span class=p>,</span>
 <a id=__codelineno-1-6 name=__codelineno-1-6 href=#__codelineno-1-6></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;text&#39;</span>
 <a id=__codelineno-1-7 name=__codelineno-1-7 href=#__codelineno-1-7></a><span class=p>)</span>
 <a id=__codelineno-1-8 name=__codelineno-1-8 href=#__codelineno-1-8></a>
@@ -35,14 +35,14 @@
 <a id=__codelineno-2-2 name=__codelineno-2-2 href=#__codelineno-2-2></a>    <span class=n>df</span><span class=o>=</span><span class=n>df</span><span class=p>,</span>
 <a id=__codelineno-2-3 name=__codelineno-2-3 href=#__codelineno-2-3></a>    <span class=n>features</span><span class=o>=</span><span class=p>[</span>
 <a id=__codelineno-2-4 name=__codelineno-2-4 href=#__codelineno-2-4></a>        <span class=p>{</span>
-<a id=__codelineno-2-5 name=__codelineno-2-5 href=#__codelineno-2-5></a>            <span class=s1>&#39;name&#39;</span><span class=p>:</span> <span class=s1>&#39;ChurnRisk&#39;</span><span class=p>,</span>
-<a id=__codelineno-2-6 name=__codelineno-2-6 href=#__codelineno-2-6></a>            <span class=s1>&#39;description&#39;</span><span class=p>:</span> <span class=s1>&#39;Calculate churn risk score (0-100)&#39;</span><span class=p>,</span>
+<a id=__codelineno-2-5 name=__codelineno-2-5 href=#__codelineno-2-5></a>            <span class=s1>&#39;new_feature_name&#39;</span><span class=p>:</span> <span class=s1>&#39;ChurnRisk&#39;</span><span class=p>,</span>
+<a id=__codelineno-2-6 name=__codelineno-2-6 href=#__codelineno-2-6></a>            <span class=s1>&#39;new_feature_description&#39;</span><span class=p>:</span> <span class=s1>&#39;Calculate churn risk score (0-100)&#39;</span><span class=p>,</span>
 <a id=__codelineno-2-7 name=__codelineno-2-7 href=#__codelineno-2-7></a>            <span class=s1>&#39;output_type&#39;</span><span class=p>:</span> <span class=s1>&#39;float&#39;</span><span class=p>,</span>
 <a id=__codelineno-2-8 name=__codelineno-2-8 href=#__codelineno-2-8></a>            <span class=s1>&#39;constraints&#39;</span><span class=p>:</span> <span class=p>{</span><span class=s1>&#39;min&#39;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span> <span class=s1>&#39;max&#39;</span><span class=p>:</span> <span class=mi>100</span><span class=p>}</span>
 <a id=__codelineno-2-9 name=__codelineno-2-9 href=#__codelineno-2-9></a>        <span class=p>},</span>
 <a id=__codelineno-2-10 name=__codelineno-2-10 href=#__codelineno-2-10></a>        <span class=p>{</span>
-<a id=__codelineno-2-11 name=__codelineno-2-11 href=#__codelineno-2-11></a>            <span class=s1>&#39;name&#39;</span><span class=p>:</span> <span class=s1>&#39;RetentionOffer&#39;</span><span class=p>,</span>
-<a id=__codelineno-2-12 name=__codelineno-2-12 href=#__codelineno-2-12></a>            <span class=s1>&#39;description&#39;</span><span class=p>:</span> <span class=s1>&#39;Suggest personalized retention offer&#39;</span><span class=p>,</span>
+<a id=__codelineno-2-11 name=__codelineno-2-11 href=#__codelineno-2-11></a>            <span class=s1>&#39;new_feature_name&#39;</span><span class=p>:</span> <span class=s1>&#39;RetentionOffer&#39;</span><span class=p>,</span>
+<a id=__codelineno-2-12 name=__codelineno-2-12 href=#__codelineno-2-12></a>            <span class=s1>&#39;new_feature_description&#39;</span><span class=p>:</span> <span class=s1>&#39;Suggest personalized retention offer&#39;</span><span class=p>,</span>
 <a id=__codelineno-2-13 name=__codelineno-2-13 href=#__codelineno-2-13></a>            <span class=s1>&#39;output_type&#39;</span><span class=p>:</span> <span class=s1>&#39;text&#39;</span>
 <a id=__codelineno-2-14 name=__codelineno-2-14 href=#__codelineno-2-14></a>        <span class=p>}</span>
 <a id=__codelineno-2-15 name=__codelineno-2-15 href=#__codelineno-2-15></a>    <span class=p>],</span>
@@ -66,8 +66,8 @@
 </code></pre></div> <h2 id=output-types-and-constraints>Output Types and Constraints<a class=headerlink href=#output-types-and-constraints title="Permanent link">&para;</a></h2> <div class=highlight><pre><span></span><code><a id=__codelineno-4-1 name=__codelineno-4-1 href=#__codelineno-4-1></a><span class=c1># Numeric output with constraints</span>
 <a id=__codelineno-4-2 name=__codelineno-4-2 href=#__codelineno-4-2></a><span class=n>df</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-4-3 name=__codelineno-4-3 href=#__codelineno-4-3></a>    <span class=n>df</span><span class=o>=</span><span class=n>df</span><span class=p>,</span>
-<a id=__codelineno-4-4 name=__codelineno-4-4 href=#__codelineno-4-4></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;risk_score&#39;</span><span class=p>,</span>
-<a id=__codelineno-4-5 name=__codelineno-4-5 href=#__codelineno-4-5></a>    <span class=n>description</span><span class=o>=</span><span class=s1>&#39;Calculate risk score&#39;</span><span class=p>,</span>
+<a id=__codelineno-4-4 name=__codelineno-4-4 href=#__codelineno-4-4></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;risk_score&#39;</span><span class=p>,</span>
+<a id=__codelineno-4-5 name=__codelineno-4-5 href=#__codelineno-4-5></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s1>&#39;Calculate risk score&#39;</span><span class=p>,</span>
 <a id=__codelineno-4-6 name=__codelineno-4-6 href=#__codelineno-4-6></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;float&#39;</span><span class=p>,</span>
 <a id=__codelineno-4-7 name=__codelineno-4-7 href=#__codelineno-4-7></a>    <span class=n>constraints</span><span class=o>=</span><span class=p>{</span>
 <a id=__codelineno-4-8 name=__codelineno-4-8 href=#__codelineno-4-8></a>        <span class=s1>&#39;min&#39;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span>
@@ -79,8 +79,8 @@
 <a id=__codelineno-4-14 name=__codelineno-4-14 href=#__codelineno-4-14></a><span class=c1># Categorical output with defined categories</span>
 <a id=__codelineno-4-15 name=__codelineno-4-15 href=#__codelineno-4-15></a><span class=n>df</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-4-16 name=__codelineno-4-16 href=#__codelineno-4-16></a>    <span class=n>df</span><span class=o>=</span><span class=n>df</span><span class=p>,</span>
-<a id=__codelineno-4-17 name=__codelineno-4-17 href=#__codelineno-4-17></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;segment&#39;</span><span class=p>,</span>
-<a id=__codelineno-4-18 name=__codelineno-4-18 href=#__codelineno-4-18></a>    <span class=n>description</span><span class=o>=</span><span class=s1>&#39;Customer segment&#39;</span><span class=p>,</span>
+<a id=__codelineno-4-17 name=__codelineno-4-17 href=#__codelineno-4-17></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;segment&#39;</span><span class=p>,</span>
+<a id=__codelineno-4-18 name=__codelineno-4-18 href=#__codelineno-4-18></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s1>&#39;Customer segment&#39;</span><span class=p>,</span>
 <a id=__codelineno-4-19 name=__codelineno-4-19 href=#__codelineno-4-19></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;category&#39;</span><span class=p>,</span>
 <a id=__codelineno-4-20 name=__codelineno-4-20 href=#__codelineno-4-20></a>    <span class=n>constraints</span><span class=o>=</span><span class=p>{</span>
 <a id=__codelineno-4-21 name=__codelineno-4-21 href=#__codelineno-4-21></a>        <span class=s1>&#39;categories&#39;</span><span class=p>:</span> <span class=p>[</span><span class=s1>&#39;Premium&#39;</span><span class=p>,</span> <span class=s1>&#39;Regular&#39;</span><span class=p>,</span> <span class=s1>&#39;Budget&#39;</span><span class=p>]</span>
@@ -103,15 +103,15 @@
 <a id=__codelineno-5-15 name=__codelineno-5-15 href=#__codelineno-5-15></a><span class=c1># Generate a new feature</span>
 <a id=__codelineno-5-16 name=__codelineno-5-16 href=#__codelineno-5-16></a><span class=n>result</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-5-17 name=__codelineno-5-17 href=#__codelineno-5-17></a>    <span class=n>df</span><span class=o>=</span><span class=n>data</span><span class=p>,</span>
-<a id=__codelineno-5-18 name=__codelineno-5-18 href=#__codelineno-5-18></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;risk_score&#39;</span><span class=p>,</span>
-<a id=__codelineno-5-19 name=__codelineno-5-19 href=#__codelineno-5-19></a>    <span class=n>description</span><span class=o>=</span><span class=s1>&#39;Calculate customer risk score based on transaction history&#39;</span><span class=p>,</span>
+<a id=__codelineno-5-18 name=__codelineno-5-18 href=#__codelineno-5-18></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;risk_score&#39;</span><span class=p>,</span>
+<a id=__codelineno-5-19 name=__codelineno-5-19 href=#__codelineno-5-19></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s1>&#39;Calculate customer risk score based on transaction history&#39;</span><span class=p>,</span>
 <a id=__codelineno-5-20 name=__codelineno-5-20 href=#__codelineno-5-20></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;float&#39;</span>
 <a id=__codelineno-5-21 name=__codelineno-5-21 href=#__codelineno-5-21></a><span class=p>)</span>
 </code></pre></div> <h2 id=feature-generation>Feature Generation<a class=headerlink href=#feature-generation title="Permanent link">&para;</a></h2> <h3 id=single-feature-generation_1>Single Feature Generation<a class=headerlink href=#single-feature-generation_1 title="Permanent link">&para;</a></h3> <div class=highlight><pre><span></span><code><a id=__codelineno-6-1 name=__codelineno-6-1 href=#__codelineno-6-1></a><span class=c1># Generate a specific feature</span>
 <a id=__codelineno-6-2 name=__codelineno-6-2 href=#__codelineno-6-2></a><span class=n>feature_data</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-6-3 name=__codelineno-6-3 href=#__codelineno-6-3></a>    <span class=n>df</span><span class=o>=</span><span class=n>data</span><span class=p>,</span>
-<a id=__codelineno-6-4 name=__codelineno-6-4 href=#__codelineno-6-4></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;customer_segment&#39;</span><span class=p>,</span>
-<a id=__codelineno-6-5 name=__codelineno-6-5 href=#__codelineno-6-5></a>    <span class=n>description</span><span class=o>=</span><span class=s2>&quot;Create customer segments based on behavior&quot;</span><span class=p>,</span>
+<a id=__codelineno-6-4 name=__codelineno-6-4 href=#__codelineno-6-4></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;customer_segment&#39;</span><span class=p>,</span>
+<a id=__codelineno-6-5 name=__codelineno-6-5 href=#__codelineno-6-5></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s2>&quot;Create customer segments based on behavior&quot;</span><span class=p>,</span>
 <a id=__codelineno-6-6 name=__codelineno-6-6 href=#__codelineno-6-6></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;category&#39;</span><span class=p>,</span>
 <a id=__codelineno-6-7 name=__codelineno-6-7 href=#__codelineno-6-7></a>    <span class=n>source_columns</span><span class=o>=</span><span class=p>[</span><span class=s1>&#39;age&#39;</span><span class=p>,</span> <span class=s1>&#39;income&#39;</span><span class=p>,</span> <span class=s1>&#39;purchase_history&#39;</span><span class=p>]</span>
 <a id=__codelineno-6-8 name=__codelineno-6-8 href=#__codelineno-6-8></a><span class=p>)</span>
@@ -120,14 +120,14 @@
 <a id=__codelineno-7-3 name=__codelineno-7-3 href=#__codelineno-7-3></a>    <span class=n>df</span><span class=o>=</span><span class=n>data</span><span class=p>,</span>
 <a id=__codelineno-7-4 name=__codelineno-7-4 href=#__codelineno-7-4></a>    <span class=n>features</span><span class=o>=</span><span class=p>[</span>
 <a id=__codelineno-7-5 name=__codelineno-7-5 href=#__codelineno-7-5></a>        <span class=p>{</span>
-<a id=__codelineno-7-6 name=__codelineno-7-6 href=#__codelineno-7-6></a>            <span class=s1>&#39;name&#39;</span><span class=p>:</span> <span class=s1>&#39;lifetime_value&#39;</span><span class=p>,</span>
-<a id=__codelineno-7-7 name=__codelineno-7-7 href=#__codelineno-7-7></a>            <span class=s1>&#39;description&#39;</span><span class=p>:</span> <span class=s2>&quot;Predict customer lifetime value&quot;</span><span class=p>,</span>
+<a id=__codelineno-7-6 name=__codelineno-7-6 href=#__codelineno-7-6></a>            <span class=s1>&#39;new_feature_name&#39;</span><span class=p>:</span> <span class=s1>&#39;lifetime_value&#39;</span><span class=p>,</span>
+<a id=__codelineno-7-7 name=__codelineno-7-7 href=#__codelineno-7-7></a>            <span class=s1>&#39;new_feature_description&#39;</span><span class=p>:</span> <span class=s2>&quot;Predict customer lifetime value&quot;</span><span class=p>,</span>
 <a id=__codelineno-7-8 name=__codelineno-7-8 href=#__codelineno-7-8></a>            <span class=s1>&#39;output_type&#39;</span><span class=p>:</span> <span class=s1>&#39;float&#39;</span><span class=p>,</span>
 <a id=__codelineno-7-9 name=__codelineno-7-9 href=#__codelineno-7-9></a>            <span class=s1>&#39;constraints&#39;</span><span class=p>:</span> <span class=p>{</span><span class=s1>&#39;min&#39;</span><span class=p>:</span> <span class=mi>0</span><span class=p>}</span>
 <a id=__codelineno-7-10 name=__codelineno-7-10 href=#__codelineno-7-10></a>        <span class=p>},</span>
 <a id=__codelineno-7-11 name=__codelineno-7-11 href=#__codelineno-7-11></a>        <span class=p>{</span>
-<a id=__codelineno-7-12 name=__codelineno-7-12 href=#__codelineno-7-12></a>            <span class=s1>&#39;name&#39;</span><span class=p>:</span> <span class=s1>&#39;churn_risk&#39;</span><span class=p>,</span>
-<a id=__codelineno-7-13 name=__codelineno-7-13 href=#__codelineno-7-13></a>            <span class=s1>&#39;description&#39;</span><span class=p>:</span> <span class=s2>&quot;Assess customer churn risk&quot;</span><span class=p>,</span>
+<a id=__codelineno-7-12 name=__codelineno-7-12 href=#__codelineno-7-12></a>            <span class=s1>&#39;new_feature_name&#39;</span><span class=p>:</span> <span class=s1>&#39;churn_risk&#39;</span><span class=p>,</span>
+<a id=__codelineno-7-13 name=__codelineno-7-13 href=#__codelineno-7-13></a>            <span class=s1>&#39;new_feature_description&#39;</span><span class=p>:</span> <span class=s2>&quot;Assess customer churn risk&quot;</span><span class=p>,</span>
 <a id=__codelineno-7-14 name=__codelineno-7-14 href=#__codelineno-7-14></a>            <span class=s1>&#39;output_type&#39;</span><span class=p>:</span> <span class=s1>&#39;category&#39;</span>
 <a id=__codelineno-7-15 name=__codelineno-7-15 href=#__codelineno-7-15></a>        <span class=p>}</span>
 <a id=__codelineno-7-16 name=__codelineno-7-16 href=#__codelineno-7-16></a>    <span class=p>]</span>
@@ -135,8 +135,8 @@
 </code></pre></div> <h2 id=advanced-usage>Advanced Usage<a class=headerlink href=#advanced-usage title="Permanent link">&para;</a></h2> <h3 id=custom-constraints>Custom Constraints<a class=headerlink href=#custom-constraints title="Permanent link">&para;</a></h3> <div class=highlight><pre><span></span><code><a id=__codelineno-8-1 name=__codelineno-8-1 href=#__codelineno-8-1></a><span class=c1># Generate feature with constraints</span>
 <a id=__codelineno-8-2 name=__codelineno-8-2 href=#__codelineno-8-2></a><span class=n>result</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-8-3 name=__codelineno-8-3 href=#__codelineno-8-3></a>    <span class=n>df</span><span class=o>=</span><span class=n>data</span><span class=p>,</span>
-<a id=__codelineno-8-4 name=__codelineno-8-4 href=#__codelineno-8-4></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;satisfaction_score&#39;</span><span class=p>,</span>
-<a id=__codelineno-8-5 name=__codelineno-8-5 href=#__codelineno-8-5></a>    <span class=n>description</span><span class=o>=</span><span class=s1>&#39;Calculate customer satisfaction score&#39;</span><span class=p>,</span>
+<a id=__codelineno-8-4 name=__codelineno-8-4 href=#__codelineno-8-4></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;satisfaction_score&#39;</span><span class=p>,</span>
+<a id=__codelineno-8-5 name=__codelineno-8-5 href=#__codelineno-8-5></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s1>&#39;Calculate customer satisfaction score&#39;</span><span class=p>,</span>
 <a id=__codelineno-8-6 name=__codelineno-8-6 href=#__codelineno-8-6></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;float&#39;</span><span class=p>,</span>
 <a id=__codelineno-8-7 name=__codelineno-8-7 href=#__codelineno-8-7></a>    <span class=n>constraints</span><span class=o>=</span><span class=p>{</span>
 <a id=__codelineno-8-8 name=__codelineno-8-8 href=#__codelineno-8-8></a>        <span class=s1>&#39;min&#39;</span><span class=p>:</span> <span class=mi>0</span><span class=p>,</span>
@@ -147,14 +147,14 @@
 </code></pre></div> <h3 id=batch-processing>Batch Processing<a class=headerlink href=#batch-processing title="Permanent link">&para;</a></h3> <div class=highlight><pre><span></span><code><a id=__codelineno-9-1 name=__codelineno-9-1 href=#__codelineno-9-1></a><span class=c1># Handle large datasets efficiently</span>
 <a id=__codelineno-9-2 name=__codelineno-9-2 href=#__codelineno-9-2></a><span class=n>result</span> <span class=o>=</span> <span class=n>engineer</span><span class=o>.</span><span class=n>generate_feature</span><span class=p>(</span>
 <a id=__codelineno-9-3 name=__codelineno-9-3 href=#__codelineno-9-3></a>    <span class=n>df</span><span class=o>=</span><span class=n>large_data</span><span class=p>,</span>
-<a id=__codelineno-9-4 name=__codelineno-9-4 href=#__codelineno-9-4></a>    <span class=n>name</span><span class=o>=</span><span class=s1>&#39;risk_score&#39;</span><span class=p>,</span>
-<a id=__codelineno-9-5 name=__codelineno-9-5 href=#__codelineno-9-5></a>    <span class=n>description</span><span class=o>=</span><span class=s1>&#39;Calculate risk score&#39;</span><span class=p>,</span>
+<a id=__codelineno-9-4 name=__codelineno-9-4 href=#__codelineno-9-4></a>    <span class=n>new_feature_name</span><span class=o>=</span><span class=s1>&#39;risk_score&#39;</span><span class=p>,</span>
+<a id=__codelineno-9-5 name=__codelineno-9-5 href=#__codelineno-9-5></a>    <span class=n>new_feature_description</span><span class=o>=</span><span class=s1>&#39;Calculate risk score&#39;</span><span class=p>,</span>
 <a id=__codelineno-9-6 name=__codelineno-9-6 href=#__codelineno-9-6></a>    <span class=n>output_type</span><span class=o>=</span><span class=s1>&#39;float&#39;</span><span class=p>,</span>
 <a id=__codelineno-9-7 name=__codelineno-9-7 href=#__codelineno-9-7></a>    <span class=n>batch_size</span><span class=o>=</span><span class=mi>32</span>
 <a id=__codelineno-9-8 name=__codelineno-9-8 href=#__codelineno-9-8></a><span class=p>)</span>
 </code></pre></div> <h2 id=configuration-options>Configuration Options<a class=headerlink href=#configuration-options title="Permanent link">&para;</a></h2> <div class=highlight><pre><span></span><code><a id=__codelineno-10-1 name=__codelineno-10-1 href=#__codelineno-10-1></a><span class=n>config</span> <span class=o>=</span> <span class=p>{</span>
 <a id=__codelineno-10-2 name=__codelineno-10-2 href=#__codelineno-10-2></a>    <span class=c1># Model settings</span>
-<a id=__codelineno-10-3 name=__codelineno-10-3 href=#__codelineno-10-3></a>    <span class=s1>&#39;model&#39;</span><span class=p>:</span> <span class=s1>&#39;gpt-4-turbo-preview&#39;</span><span class=p>,</span>
+<a id=__codelineno-10-3 name=__codelineno-10-3 href=#__codelineno-10-3></a>    <span class=s1>&#39;model&#39;</span><span class=p>:</span> <span class=s1>&#39;gpt-4o-mini&#39;</span><span class=p>,</span>
 <a id=__codelineno-10-4 name=__codelineno-10-4 href=#__codelineno-10-4></a>    <span class=s1>&#39;temperature&#39;</span><span class=p>:</span> <span class=mf>0.7</span><span class=p>,</span>
 <a id=__codelineno-10-5 name=__codelineno-10-5 href=#__codelineno-10-5></a>
 <a id=__codelineno-10-6 name=__codelineno-10-6 href=#__codelineno-10-6></a>    <span class=c1># Processing settings</span>
