@@ -1,18 +1,15 @@
 import asyncio
-from datetime import datetime
 import pandas as pd
-import numpy as np
 from tqdm.auto import tqdm
 import nest_asyncio
 import logging
-from typing import List, Dict, Any, Optional, Tuple, Union
-from pydantic import BaseModel, Field, ValidationError, model_validator
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel, Field, ValidationError
 import json
-import re
+
 from openai import AsyncOpenAI
 from .config import AuginiConfig
-from .utils import extract_json, generate_default_prompt, configure_logging
-from .exceptions import APIError, DataProcessingError
+from .exceptions import APIError
 
 nest_asyncio.apply()
 
