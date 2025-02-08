@@ -1,0 +1,97 @@
+:root {
+  --md-primary-fg-color: #4051b5;
+  --md-primary-fg-color--light: #5c6bc0;
+  --md-primary-fg-color--dark: #3949ab;
+  --md-accent-fg-color: #7c4dff;
+}
+
+/* Better header styling */
+.md-header {
+  box-shadow: 0 0 0.2rem rgba(0,0,0,.1), 0 0.2rem 0.4rem rgba(0,0,0,.2);
+}
+
+/* Remove the gradient background that makes it look terrible */
+.md-main {
+  background: var(--md-default-bg-color);
+}
+
+/* Better content styling */
+.md-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+}
+
+/* Better typography */
+.md-typeset h1 {
+  color: var(--md-primary-fg-color);
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.md-typeset h2 {
+  font-weight: 600;
+  margin-top: 2rem;
+}
+
+/* Better code blocks */
+.md-typeset code {
+  background-color: rgba(0,0,0,.05);
+  border-radius: 0.2rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.highlight pre {
+  padding: 1rem;
+  border-radius: 0.4rem;
+  background-color: var(--md-code-bg-color);
+}
+
+/* Better navigation */
+.md-nav {
+  font-size: 0.8rem;
+}
+
+.md-nav__item {
+  padding: 0.2rem 0;
+}
+
+.md-nav__link {
+  color: var(--md-default-fg-color--light);
+}
+
+.md-nav__link--active {
+  color: var(--md-primary-fg-color);
+  font-weight: bold;
+}
+
+/* Better table of contents */
+.md-sidebar--secondary {
+  padding: 1.2rem;
+}
+
+/* Better footer */
+.md-footer {
+  background-color: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  box-shadow: 0 0 0.2rem rgba(0,0,0,.1);
+}
+
+.md-footer-meta {
+  background-color: var(--md-default-bg-color--light);
+}
+
+/* Cookie consent styling */
+.md-consent {
+  background-color: var(--md-default-bg-color);
+  box-shadow: 0 0 0.2rem rgba(0,0,0,.1), 0 0.2rem 0.4rem rgba(0,0,0,.2);
+  border-radius: 0.4rem;
+}
+
+/* Better mobile responsiveness */
+@media screen and (max-width: 76.1875em) {
+  .md-nav--primary .md-nav__title {
+    background-color: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+  }
+} 
