@@ -50,7 +50,7 @@ engineer = DataEngineer(
 # Generate customer insights
 df = engineer.generate_features(
     df=df,
-    features=[
+    new_feature_specs=[
         {
             'new_feature_name': 'CustomerSegment',
             'new_feature_description': 'Classify customer segment based on age and spending',
