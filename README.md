@@ -70,7 +70,6 @@ df = engineer.generate_features(
 analyzer = DataAnalyzer(
     api_key="your-api-key",
     model="gpt-4o-mini",
-    enable_memory=True  # Enable conversation context
 )
 
 # Fit data and ask questions
