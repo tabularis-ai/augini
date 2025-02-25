@@ -44,6 +44,7 @@ nav:
   - APIs:
     - DataEngineer: data-engineer.md
     - DataAnalyzer: data-analyzer.md
+    - Visualization: visualization.md
     
 markdown_extensions:
   - admonition

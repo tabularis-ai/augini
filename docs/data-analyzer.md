@@ -1,128 +1,136 @@
-# DataAnalyzer
+# Data Analysis with Augini
 
-The DataAnalyzer API provides an AI-powered interface for interactive data analysis through natural language queries.
+Augini provides powerful data analysis capabilities through its DataAnalyzer component. This component helps you understand your data, discover insights, and generate visualizations.
+
+## DataAnalyzer
+
+The `DataAnalyzer` is the analysis component that provides structured access to various analysis tools.
+
+### Basic Usage
+
+```python
+from augini import DataAnalyzer, AuginiConfig
+
+# Initialize with configuration
+config = AuginiConfig(
+    llm=dict(
+        provider="openrouter",
+        api_key="your-api-key",
+        model="anthropic/claude-3.5-sonnet"
+    ),
+    tools={
+        "missing_values_analyzer": {"enabled": True},
+        "correlation_analyzer": {"enabled": True},
+        "statistical_summary": {"enabled": True},
+        "visualization_tool": {"enabled": True}
+    }
+)
+
+analyzer = DataAnalyzer(config)
+df = your_dataframe  # Your pandas DataFrame
+
+# Analyze missing values
+missing_values_result = analyzer.analyze_missing_values(df)
+
+# Analyze correlations
+correlation_result = analyzer.analyze_correlations(df)
+
+# Analyze statistics
+statistics_result = analyzer.analyze_statistics(df)
+
+# Generate a visualization
+visualization_result = analyzer.analyze_visualizations(
+    df=df,
+    plot_type="scatter",
+    x="feature_1",
+    y="feature_2",
+    hue="category"
+)
+```
+
+## Configuration
+
+The analyzer uses the following configuration structure:
+
+```python
+config = AuginiConfig(
+    llm=dict(
+        provider="openrouter",  # LLM provider
+        api_key="your-api-key",  # API key
+        base_url="https://openrouter.ai/api/v1",  # Base URL (optional)
+        model="anthropic/claude-3.5-sonnet"  # Model name
+    ),
+    tools={
+        # Tool configurations
+        "visualization_tool": {
+            "enabled": True,
+            "parameters": {
+                "default_backend": "seaborn",
+                "default_style": "whitegrid",
+                "export_dir": "./visualizations"
+            }
+        }
+    },
+    debug=False  # Enable debug mode
+)
+```
 
 ## Key Features
 
-- Natural language data analysis
-- Interactive chat interface
-- Context-aware responses
 - Statistical insights
 - Pattern detection
 - Trend analysis
-
-## Basic Usage
-
-```python
-from augini import DataAnalyzer
-import pandas as pd
-
-# Initialize with configuration
-config = {
-    'api_key': 'your-api-key',
-    'model': 'gpt-4-turbo-preview'
-}
-
-analyzer = DataAnalyzer(config=config)
-
-# Load your data and prepare analyzer
-data = pd.read_csv('your_data.csv')
-analyzer.fit(data)
-
-# Ask questions about your data
-insights = analyzer.chat("What are the main trends in this dataset?")
-print(insights)
-```
+- Visualization capabilities
 
 ## Analysis Types
 
 ### Statistical Analysis
 
 ```python
-# Ask about statistical patterns
-stats = analyzer.chat(
-    "What are the key statistical patterns in the data? "
-    "Include mean, median, and correlations in your analysis."
-)
+# Get statistical analysis
+stats = analyzer.analyze_statistics(df)
 ```
 
-### Pattern Detection
+### Correlation Analysis
 
 ```python
-# Ask about patterns in time series
-patterns = analyzer.chat(
-    "What patterns do you see in the data over time? "
-    "Focus on the 'date' column."
-)
+# Get correlation analysis
+correlations = analyzer.analyze_correlations(df)
 ```
 
-### Trend Analysis
+### Missing Values Analysis
 
 ```python
-# Ask about trends by category
-trends = analyzer.chat(
-    "How do metrics vary across different categories? "
-    "Group the analysis by 'category' column."
+# Get missing values analysis
+missing = analyzer.analyze_missing_values(df)
+```
+
+### Visualization
+
+```python
+# Generate a visualization
+visualization = analyzer.analyze_visualizations(
+    df=df,
+    plot_type="scatter",
+    x="feature_1",
+    y="feature_2",
+    hue="category"
 )
 ```
 
 ## Advanced Usage
 
-### Memory Features
+### Using Multiple Tools Together
 
 ```python
-# Enable conversation memory for context-aware analysis
-analyzer = DataAnalyzer(
-    api_key='your-api-key',
-    enable_memory=True
+# First analyze statistics
+stats = analyzer.analyze_statistics(df)
+
+# Then visualize correlations
+correlations = analyzer.analyze_correlations(df)
+visualization = analyzer.analyze_visualizations(
+    df=df,
+    plot_type="heatmap",
+    x=correlations["result"]["correlation_matrix"]
 )
-analyzer.fit(data)
-
-# First question
-response1 = analyzer.chat(
-    "What's the average age in the dataset?",
-    use_memory=True
-)
-
-# Follow-up question (uses context from previous question)
-response2 = analyzer.chat(
-    "How does it correlate with income?",
-    use_memory=True
-)
-```
-
-### Custom Analysis
-
-```python
-# Ask specific analytical questions
-analysis = analyzer.chat(
-    "Create a cohort analysis based on signup date. "
-    "Show retention rates over time and identify key patterns."
-)
-```
-
-## Configuration Options
-
-```python
-config = {
-    # Model settings
-    'model': 'gpt-4-turbo-preview',
-    'temperature': 0.7,
-    
-    # Memory settings
-    'enable_memory': True,
-    'context_window_tokens': 1000,
-    
-    # Debug settings
-    'debug': True,
-    'log_level': 'INFO'
-}
-```
-
-## Best Practices
-
-1. Always call fit() before chat()
-2. Ask clear, specific questions
-3. Use memory features for related queries
-4. Provide context in your questions
-5. Validate insights against raw data 
+``` 

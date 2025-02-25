@@ -66,17 +66,23 @@ df = engineer.generate_features(
     ]
 )
 
-# Initialize analyzer for natural language insights
+# Initialize analyzer for data analysis
 analyzer = DataAnalyzer(
     api_key="your-api-key",
-    model="gpt-4o-mini",
-    enable_memory=True  # Enable conversation context
+    model="gpt-4o-mini"
 )
 
-# Fit data and ask questions
-analyzer.fit(df)
-insights = analyzer.chat("What patterns do you see in customer segments?")
-print(insights)
+# Analyze data
+missing_values = analyzer.analyze_missing_values(df)
+correlations = analyzer.analyze_correlations(df)
+statistics = analyzer.analyze_statistics(df)
+visualization = analyzer.analyze_visualizations(
+    df=df,
+    plot_type="scatter",
+    x="Age",
+    y="MonthlyCharges",
+    hue="CustomerSegment"
+)
 ```
 
 ## 🎁 Key Features
@@ -88,15 +94,10 @@ print(insights)
 - **Batch Processing**: Handle large datasets efficiently
 
 ### 📊 DataAnalyzer
-- **Natural Language Analysis**: Ask questions about your data
+- **Statistical Analysis**: Get insights about your data
 - **Pattern Detection**: Uncover hidden trends and correlations
-- **Memory Context**: Build on previous analysis
 - **Visualization Integration**: Generate plots and charts
-
-### 🤖 AI Agents
-- **Automated Workflows**: Create agents for repetitive tasks
-- **Custom Behaviors**: Define agent goals and constraints
-- **Chain Actions**: Connect multiple agents for complex workflows
+- **Tool-based Architecture**: Modular and extensible analysis
 
 ## 🌐 Provider Agnostic
 
@@ -114,3 +115,136 @@ We welcome contributions!
 ## 📜 License
 
 Augini is released under the [MIT License](LICENSE).
+
+# Augini Data Chat
+
+A conversational interface for data analysis using the Augini framework.
+
+## Overview
+
+The DataChat class provides a simple chat interface for interacting with the DataAnalyzer. It allows users to ask questions about their data in natural language and receive formatted responses with markdown support.
+
+## Features
+
+- Simple chat interface for data analysis
+- Support for follow-up questions with context from previous interactions
+- Visualization request handling with automatic plot generation
+- Markdown-formatted responses for better readability
+- Session tracking for conversation history
+- Error handling with helpful suggestions
+- Integration with the Augini configuration system
+
+## Usage
+
+### API Key Setup
+
+Before using Augini, you need to set up an API key for the LLM provider:
+
+```bash
+# For OpenAI
+export OPENAI_API_KEY=your-openai-api-key
+
+# For OpenRouter
+export OPENROUTER_TOKEN=your-openrouter-token
+```
+
+### Basic Usage
+
+```python
+import pandas as pd
+from augini import DataChat, AuginiConfig
+
+# Load or create configuration
+config = AuginiConfig.from_env()  # Load from environment variables
+# or
+# config = AuginiConfig.from_file("config.yaml")  # Load from file
+
+# Create DataChat instance
+data_chat = DataChat(config)
+
+# Load your DataFrame
+df = pd.read_csv("your_data.csv")
+data_chat.set_dataframe(df)
+
+# Ask a question (simplified interface)
+response = data_chat.ask("What are the missing values in this dataset?")
+print(response)
+
+# Ask a follow-up question (context is maintained)
+response = data_chat.ask("Can you visualize the distribution of column X?")
+print(response)
+
+# Get the chat history
+history = data_chat.get_session_history()
+```
+
+### Visualization Support
+
+DataChat supports generating and displaying visualizations:
+
+```python
+# Ask for a visualization
+response = data_chat.ask("Create a scatter plot of age vs income")
+print(response)
+
+# Display the generated plot (if any)
+plot_path = data_chat.get_last_plot_path()
+if plot_path:
+    # For Jupyter notebooks
+    from IPython.display import Image, display
+    display(Image(plot_path))
+    
+    # Or for regular Python scripts
+    import matplotlib.pyplot as plt
+    img = plt.imread(plot_path)
+    plt.figure(figsize=(10, 6))
+    plt.imshow(img)
+    plt.axis('off')
+    plt.show()
+```
+
+### Example Scripts
+
+See the following example scripts for complete examples of how to use the DataChat class:
+
+- `examples/data_chat_example.py` - Interactive chat example with a command-line interface
+- `examples/simple_chat.py` - Example using the simplified interface with visualization support
+
+## Configuration
+
+The DataChat class uses the Augini configuration system. You can configure the following aspects:
+
+- LLM provider and parameters
+- Agent settings (max iterations, early stopping, etc.)
+- Tool configurations (missing values analyzer, correlation analyzer, etc.)
+
+Example configuration:
+
+```yaml
+llm:
+  provider: openrouter
+  api_key: your-api-key
+  model: anthropic/claude-3-sonnet
+  temperature: 0.7
+  max_tokens: 1000
+
+agent:
+  max_iterations: 5
+  early_stopping: true
+  verbose: false
+  return_intermediate_steps: false
+
+tools:
+  missing_values_analyzer:
+    enabled: true
+  correlation_analyzer:
+    enabled: true
+  statistical_summary:
+    enabled: true
+  visualization_tool:
+    enabled: true
+```
+
+## License
+
+[MIT License](LICENSE)

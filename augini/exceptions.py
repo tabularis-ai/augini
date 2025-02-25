@@ -1,52 +1,35 @@
+"""Custom exceptions for the Augini framework."""
+
 class AuginiError(Exception):
-    """Base exception class for all Augini errors."""
-
+    """Base exception for all Augini errors."""
     pass
 
 
-class APIError(AuginiError):
-    """Raised when there's an error with API communication."""
-
+class ConfigurationError(AuginiError):
+    """Raised when there is a configuration error."""
     pass
 
 
-class AuthenticationError(APIError):
-    """Raised when there's an authentication error with the API."""
+class ToolError(AuginiError):
+    """Raised when there is an error in a tool's execution."""
+    pass
 
+
+class AgentError(AuginiError):
+    """Raised when there is an error in agent execution."""
+    pass
+
+
+class ValidationError(AuginiError):
+    """Raised when there is a validation error."""
     pass
 
 
 class DataProcessingError(AuginiError):
     """Raised when there's an error processing data."""
-
-    pass
-
-
-class ValidationError(AuginiError):
-    """Raised when there's an error validating input data or parameters."""
-
-    pass
-
-
-class ConfigurationError(AuginiError):
-    """Raised when there's an error in configuration."""
-
-    pass
-
-
-class RateLimitError(APIError):
-    """Raised when API rate limits are exceeded."""
-
-    pass
-
-
-class NetworkError(APIError):
-    """Raised when there are network communication issues."""
-
     pass
 
 
 class DataQualityError(DataProcessingError):
-    """Raised when generated data doesn't meet quality standards."""
-
+    """Raised when data doesn't meet quality standards."""
     pass
